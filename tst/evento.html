@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>Evento Tests</title>
+
+    <script src="../src/evento.js" type="text/javascript"></script>
+
+</head>
+<body>
+
+    <h1>Evento Tests</h1>
+
+    <div id="simple_ex" class="example">
+
+      <h2>Simple</h2>
+
+      <ol>
+          <li>Mouse over the grey box and see the background become blue.</li>
+          <li>Mouse out of the blue box and see the background become grey again.</li>
+          <li> Click <a href="#" onclick="LIB_removeEventListener(document.getElementById('one'), 'mouseover', simpleOver);LIB_removeEventListener(document.getElementById('one'), 'mouseout', simpleOut);return false;">here</a> to remove the mouseover and mouseout listeners.</li>
+          <li>Mouse over and out of the grey box and see the background stay grey.</li>
+      </ol>
+
+      <div id="one" style="width:300px;height:100px;background:#444;margin-left:auto;margin-right:auto;"></div>
+
+      <script type="text/javascript">
+          function simpleOver(e) {
+              document.getElementById('one').style.background = "#00f";
+          }
+          function simpleOut(e) {
+              document.getElementById('one').style.background = "#444";
+          }
+          LIB_addEventListener(document.getElementById('one'), 'mouseover', simpleOver);
+          LIB_addEventListener(document.getElementById('one'), 'mouseout', simpleOut);
+      </script>
+
+    </div>
+
+</body>
+</html>
