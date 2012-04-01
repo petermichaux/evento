@@ -72,7 +72,7 @@ var LIB_removeEventListener;
         }
     }
 
-    var listeners = {};
+    var listeners = [];
 
     var makeAdder = function(guts) {
         return function(element, type, listener, /*optional*/ auxArg) {
@@ -82,19 +82,12 @@ var LIB_removeEventListener;
             var o = (arguments.length > 3) ?
                         createListener(element, type, listener, auxArg) :
                         createListener(element, type, listener);
-            if (hasOwnProperty(listeners, type)) {
-                // console.log('listeners for type "'+type+'" already exists.');
-                if (hasEventListener(listeners[type], o)) {
-                    // do not add the same listener twice
-                    return;
-                }
-            }
-            else {
-                // console.log('initializing listeners for type "'+type+'".');
-                listeners[type] = [];
+            if (hasEventListener(listeners, o)) {
+                // do not add the same listener twice
+                return;
             }
             guts(o);
-            listeners[type].push(o);
+            listeners.push(o);
         };
     };
 
@@ -106,13 +99,11 @@ var LIB_removeEventListener;
             var o = (arguments.length > 3) ?
                         createListener(element, type, listener, auxArg) :
                         createListener(element, type, listener);
-            if (hasOwnProperty(listeners, type)) {
-                if (o = hasEventListener(listeners[type], o)) {
-                    // console.log('removing');
-                    // element.removeEventListener(o.type, o.wrappedHandler, false);
-                    guts(o);
-                    removeEventListener(listeners[type], o); // TODO not efficient because already looked for it with hasEventListener
-                }
+            if (o = hasEventListener(listeners, o)) {
+                // console.log('removing');
+                // element.removeEventListener(o.type, o.wrappedHandler, false);
+                guts(o);
+                removeEventListener(listeners, o); // TODO not efficient because already looked for it with hasEventListener
             }
         };
     };
