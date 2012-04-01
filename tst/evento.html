@@ -6,10 +6,30 @@
 
     <script src="../src/evento.js" type="text/javascript"></script>
 
+    <style type="text/css">
+        .warningMessage {
+            border: 10px solid red;
+            padding: 10px;
+        }
+    </style>
+
 </head>
 <body>
 
     <h1>Evento Tests</h1>
+
+    <noscript>
+        <p class="warningMessage">JavaScript not supported in this browser</p>
+    </noscript>
+
+    <script type="text/javascript">
+        if (typeof LIB_addEventListener !== 'function') {
+            document.write('<p class="warningMessage">LIB_addEventListener is not a function</p>');
+        }
+        if (typeof LIB_removeEventListener !== 'function') {
+            document.write('<p class="warningMessage">LIB_removeEventListener is not a function</p>');
+        }
+    </script>
 
     <div id="simple_ex" class="example">
 
