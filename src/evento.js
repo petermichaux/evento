@@ -74,9 +74,8 @@ var LIB_removeEventListener;
 
     var listeners = {};
 
-    if (isHostMethod(document, 'addEventListener')) {
-
-        LIB_addEventListener = function(element, type, listener, /*optional*/ auxArg) {
+    var makeAdder = function(guts) {
+        return function(element, type, listener, /*optional*/ auxArg) {
             // console.log('LIB_addEventListener called with "'+arguments.length+'" arguments.');
             // TODO does using apply arguments do the same thing as the next three lines?
             // If so then potentially use the same thing in EventTarget
@@ -94,11 +93,13 @@ var LIB_removeEventListener;
                 // console.log('initializing listeners for type "'+type+'".');
                 listeners[type] = [];
             }
-            element.addEventListener(o.type, o.wrappedHandler, false);
+            guts(o);
             listeners[type].push(o);
         };
+    };
 
-        LIB_removeEventListener = function(element, type, listener, /*optional*/ auxArg) {
+    var makeRemover = function(guts) {
+        return function(element, type, listener, /*optional*/ auxArg) {
             // console.log('LIB_removeEventListener called with "'+arguments.length+'" arguments.');
             // TODO does using apply arguments do the same thing as the next three lines?
             // If so then potentially use the same thing in EventTarget
@@ -108,16 +109,34 @@ var LIB_removeEventListener;
             if (hasOwnProperty(listeners, type)) {
                 if (o = hasEventListener(listeners[type], o)) {
                     // console.log('removing');
-                    element.removeEventListener(o.type, o.wrappedHandler, false);
+                    // element.removeEventListener(o.type, o.wrappedHandler, false);
+                    guts(o);
                     removeEventListener(listeners[type], o); // TODO not efficient because already looked for it with hasEventListener
                 }
             }
         };
+    };
+
+    if (isHostMethod(document, 'addEventListener')) {
+
+        LIB_addEventListener = makeAdder(function(o) {
+            o.element.addEventListener(o.type, o.wrappedHandler, false);
+        });
+
+        LIB_removeEventListener = makeRemover(function(o) {
+            o.element.removeEventListener(o.type, o.wrappedHandler, false);
+        });
 
     }
     else if (isHostMethod(document, 'attachEvent')) {
 
-        throw new Error('TODO old IE not supported yet');
+        LIB_addEventListener = makeAdder(function(o) {
+            o.element.attachEvent('on'+o.type, o.wrappedHandler);
+        });
+
+        LIB_removeEventListener = makeRemover(function(o) {
+            o.element.detachEvent('on'+o.type, o.wrappedHandler);
+        });
 
     }
 
