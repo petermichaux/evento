@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>Memory Leak</title>
+
+    <style type="text/css">
+        .warningMessage {
+            border: 10px solid red;
+            padding: 10px;
+        }
+    </style>
+
+</head>
+<body>
+
+    <h1>Memory Leak</h1>
+
+    <noscript>
+        <p class="warningMessage">JavaScript not enabled in this browser.</p>
+    </noscript>
+
+    <p>This file helps ensure you can actually observe memory leaks with your OS tools. This simulate a memory leak by adding more and more globally accessible objects that cannot be collected because of their global references. You should see the memory grow and grow in your OS tools.</p>
+
+    <p>Click start and watch memory usage of the browser in the operating system. The memory usage should increase monotonically. After clicking the stop link, the memory use should plateau and only start increasing again after clicking start again.</p>
+
+    <p>The "release accumulated objects" link will allow the browser to garbage collect and the memory use should drop down (sometimes gc doesn't happen immediately so wait a bit) and then start growing again. This makes a saw tooth graph of memory in use vs time if you click the "release accumulated objects" occasionally.</p>
+
+    <script type="text/javascript">
+        // Build a big string that can be used to create
+        // big memory garbage.
+        var bigString = (function() {
+            var littleString = 'abcdefghijklmnopqrstuvwxyz';
+            var growingString = '';
+            for (var i = 0; i < 10000; i++) {
+                growingString += littleString;
+            }
+            return growingString;
+        }());
+        
+        var holder = [];
+                
+        function releaseAccumulatedObjects() {
+            holder = [];
+        }
+    
+        function leak(i) {
+            // Add something big and unique to the holder. The i at the
+            // beginning and end are to avoid the browser using some
+            // clever reuse of strings.
+            holder[holder.length] = i + bigString + i;
+        }
+
+        var throbber = '.';
+        function updateRunningReporter(i) {
+             // Don't want to update reporter every iteration. That is 
+             // unnecessary, too much
+             // DOM manipulation and to frantic for a human to watch.
+            if (i % 10 === 0) {
+                var reporter = document.getElementById('runningReporter');
+                // Don't want the reporter to grow indefinitely so occasionally
+                // clear it and start growing again.
+                throbber = (i % 500 === 0) ? '.' : (throbber + '.');
+                reporter.innerHTML = throbber;
+            }
+        }
+
+        var timeout;
+        function iterate(i) {
+            leak(i);
+            updateRunningReporter(i);
+            // Use setTimeout to avoid long running script warning alerts
+            // since we specifically want this to just keep going and going.
+            //
+            // Use a string as the first argument to setTimeout to avoid
+            // any unknown closure issues the browser may have.
+            timeout = setTimeout('iterate('+(i+1)+')', 10);
+        }
+
+        function start() {
+            iterate(0);
+        }
+
+        function stop() {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+        }
+        
+    </script>
+
+    <p><a href="#release-accumulated-objects" onclick="releaseAccumulatedObjects();return false;">release accumulated objects</a></p>
+
+    <p>Running indicator: <span id="runningReporter"></span></p>
+
+    <p><a href="#start" onclick="start();return false;">start</a></p>
+    <p><a href="#stop" onclick="stop();return false;">stop</a></p>
+
+</body>
+</html>
