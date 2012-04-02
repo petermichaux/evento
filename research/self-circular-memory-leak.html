@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>Self Circular Memory Leak</title>
+
+    <style type="text/css">
+        .warningMessage {
+            border: 10px solid red;
+            padding: 10px;
+        }
+    </style>
+
+</head>
+<body>
+
+    <h1>Self Circular Memory Leak</h1>
+
+    <noscript>
+        <p class="warningMessage">JavaScript not enabled in this browser.</p>
+    </noscript>
+
+    <p>Click start and watch memory usage of the browser in the operating system. In IE6, for example, the memory usage should increase monotonically. After clicking the stop link, the memory use should plateau and only start increasing again after clicking start again. The memory use of the OS will only garbage collect when IE6 is closed if Windows XP Service Pack 3 (SP3) is <em>not</em> installed. If SP3 <em>is</em> installed then apparently the memory should be garbage collected when the page is unloaded (i.e. refreshing the browser or navigating to another web page.) I don't have SP3 and so have not confirmed this.</p>
+
+    <p>Another test can be performed to see the solution to the circular memory leak problem. Click start and watch memory usage of the browser in the operating system. In IE6, for example, the memory usage should increase monotonically. After clicking the break memory loop "true" link, the memory use should plateau. Although more DOM nodes are created after clicking the break memory loop "true" link, these new DOM nodes are not self referential. If you then click the break memory loop "false" link, the memory use should start growing again.</p>
+
+
+    <script type="text/javascript">
+        // Build a big string that can be used to create
+        // big memory garbage.
+        var bigString = (function() {
+            var littleString = 'abcdefghijklmnopqrstuvwxyz';
+            var growingString = '';
+            for (var i = 0; i < 10000; i++) {
+                growingString += littleString;
+            }
+            return growingString;
+        }());
+    </script>
+
+
+    <p>Set break memory loop: (currently set to "<span id="breakMemoryLoopReporter"></span>")</p>
+
+    <script type="text/javascript">
+        
+        var breakMemoryLoop;
+        function setBreakMemoryLoop(bool) {
+            breakMemoryLoop = bool;
+            document.getElementById('breakMemoryLoopReporter').innerHTML = breakMemoryLoop;
+        }
+        setBreakMemoryLoop(false);
+
+    </script>
+
+    <ul>
+       <li><a href="#break-memory-loop-falue" onclick="setBreakMemoryLoop(false);return false;">false</a></li>
+       <li><a href="#break-memory-loop-true" onclick="setBreakMemoryLoop(true);return false;">true</a></li>
+    </ul>
+
+    <p>Running indicator: <span id="runningReporter"></span></p>
+
+    <script type="text/javascript">
+    
+        function createMemoryLoop(i) {
+            // The "el" element is only referenced locally in this function.
+            // When this function returns, the "el" element should be 
+            // garbage collected.
+            var el = document.createElement('p');
+            
+            // Add something big and unique to the closure. The i at the
+            // beginning and end are to avoid the browser using some
+            // clever reuse of strings.
+            el.innerHTML = i + bigString + i;
+            
+            if (!breakMemoryLoop) {
+                el.selfref = el;
+            }
+        }
+
+        var throbber = '.';
+        function updateRunningReporter(i) {
+             // Don't want to update reporter every iteration. That is 
+             // unnecessary, too much
+             // DOM manipulation and to frantic for a human to watch.
+            if (i % 10 === 0) {
+                var reporter = document.getElementById('runningReporter');
+                // Don't want the reporter to grow indefinitely so occasionally
+                // clear it and start growing again.
+                throbber = (i % 500 === 0) ? '.' : (throbber + '.');
+                reporter.innerHTML = throbber;
+            }
+        }
+
+        var timeout;
+        function iterate(i) {
+            createMemoryLoop(i);
+            updateRunningReporter(i);
+            // Use setTimeout to avoid long running script warning alerts
+            // since we specifically want this to just keep going and going.
+            //
+            // Use a string as the first argument to setTimeout to avoid
+            // any unknown closure issues the browser may have.
+            timeout = setTimeout('iterate('+(i+1)+')', 10);
+        }
+
+        function start() {
+            iterate(0);
+        }
+
+        function stop() {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+        }
+        
+    </script>
+
+    <p><a href="#start" onclick="start();return false;">start</a></p>
+    <p><a href="#stop" onclick="stop();return false;">stop</a></p>
+
+</body>
+</html>

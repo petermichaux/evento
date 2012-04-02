@@ -2,7 +2,7 @@
     "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-    <title>Circular Memory Leak</title>
+    <title>Handler Circular Memory Leak</title>
 
     <style type="text/css">
         .warningMessage {
@@ -14,13 +14,13 @@
 </head>
 <body>
 
-    <h1>Circular Memory Leak</h1>
+    <h1>Handler Circular Memory Leak</h1>
 
     <noscript>
         <p class="warningMessage">JavaScript not enabled in this browser.</p>
     </noscript>
 
-    <p>Click start and watch memory usage of the browser in the operating system. In IE6, for example, the memory usage should increase monotonically. After clicking the stop link, the memory use should plateau and only start increasing again after clicking start again. The memory use of the OS will only garbage collect when IE6 is closed if Windows XP Service Pack 3 (SP3) is not installed. If SP3 is installed then apparently the memory should be garbage collected when the page is unloaded (i.e. refreshing the browser or navigating to another web page.) I don't have SP3 and so have not confirmed this.</p>
+    <p>Click start and watch memory usage of the browser in the operating system. In IE6, for example, the memory usage should increase monotonically. After clicking the stop link, the memory use should plateau and only start increasing again after clicking start again. The memory use of the OS will only garbage collect when IE6 is closed if Windows XP Service Pack 3 (SP3) is <em>not</em> installed. If SP3 <em>is</em> installed then apparently the memory should be garbage collected when the page is unloaded (i.e. refreshing the browser or navigating to another web page.) I don't have SP3 and so have not confirmed this.</p>
 
     <p>Another test can be performed to see the solution to the circular memory leak problem. Click start and watch memory usage of the browser in the operating system. In IE6, for example, the memory usage should increase monotonically. After clicking the break memory loop "true" link, the memory use should plateau. Although more DOM nodes and event handlers are created after clicking the break memory loop "true" link, these new DOM nodes are not kept in the handler functions' closures. If you then click the break memory loop "false" link, the memory use should start growing again.</p>
     

@@ -2,7 +2,7 @@
     "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-    <title>Memory Leak</title>
+    <title>Simulated Memory Leak</title>
 
     <style type="text/css">
         .warningMessage {
@@ -14,7 +14,7 @@
 </head>
 <body>
 
-    <h1>Memory Leak</h1>
+    <h1>Simulated Memory Leak</h1>
 
     <noscript>
         <p class="warningMessage">JavaScript not enabled in this browser.</p>
@@ -25,6 +25,8 @@
     <p>Click start and watch memory usage of the browser in the operating system. The memory usage should increase monotonically. After clicking the stop link, the memory use should plateau and only start increasing again after clicking start again.</p>
 
     <p>The "release accumulated objects" link will allow the browser to garbage collect and the memory use should drop down (sometimes gc doesn't happen immediately so wait a bit) and then start growing again. This makes a saw tooth graph of memory in use vs time if you click the "release accumulated objects" occasionally.</p>
+
+    <p>Try reloading the page and see if that has the same affect on garbage collection as releasing objects. It probably should.</p>
 
     <script type="text/javascript">
         // Build a big string that can be used to create
