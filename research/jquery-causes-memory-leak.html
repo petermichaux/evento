@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>jQuery Causes Memory Leak</title>
+
+    <script src="jquery.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        .warningMessage {
+            border: 10px solid red;
+            padding: 10px;
+        }
+    </style>
+
+    <script src="lib.js" type="text/javascript"></script>
+
+</head>
+<body>
+
+    <h1>jQuery <em>Causes</em> Memory Leak</h1>
+
+    <noscript>
+        <p class="warningMessage">JavaScript not enabled in this browser.</p>
+    </noscript>
+
+    <p>This file shows that even in browsers that do not leak memory by themselves, jQuery, like other libraries, causes memory to leak from the perspective of the application programmer using jQuery. I believe this is because wrapped handlers are cached in a globally accessible object. I need to investigate more about why. Regardless of why, adding handlers using jQuery does cause memory to leak.</p>
+
+    <p>Click start and watch memory usage of the browser in the operating system. The memory usage should increase monotonically because jQuery is creating a memory leak. After clicking the stop link, the memory use should plateau and only start increasing again after clicking start again.</p>
+
+    <p>If you set attach handler to "false" then more elements and handlers continue to be created but the handlers are not attached to the elements. This should stop the memory leaking.</p>
+
+    <p>If attach handler is "true" and you set purge to "true" then the attached handler is removed from the element before the reference to the element is lost. This should stop the memory leaking. This technique of purging handlers from elements before application code looses its last reference to the element is the recommended approach of many libraries to avoid the memory leaking.</p>
+
+    <p>Set attach handler: (currently set to "<span id="attachHandlerReporter"></span>")</p>
+
+    <script type="text/javascript">
+        
+        var attachHandler;
+        function setAttachHandler(bool) {
+            attachHandler = bool;
+            document.getElementById('attachHandlerReporter').innerHTML = attachHandler;
+        }
+        setAttachHandler(true);
+
+    </script>
+
+    <ul>
+        <li><a href="#break-memory-loop-falue" onclick="setAttachHandler(false);return false;">false</a></li>
+        <li><a href="#break-memory-loop-true" onclick="setAttachHandler(true);return false;">true</a></li>
+    </ul>
+
+    <p>Use purge: (currently set to "<span id="pureListenersReporter"></span>")</p>
+
+    <script type="text/javascript">
+
+        var pureListeners;
+        function setPureListeners(dm) {
+            pureListeners = dm;
+            document.getElementById('pureListenersReporter').innerHTML = pureListeners;
+        }
+        setPureListeners(false);
+
+    </script>
+
+    <ul>
+        <li><a href="#purge-false" onclick="setPureListeners(false);return false;">false</a></li>
+        <li><a href="#purge-true" onclick="setPureListeners(true);return false;">true</a></li>
+    </ul>
+
+    <p>Running indicator: <span id="runningReporter"></span></p>
+
+    <script type="text/javascript">
+
+        function createCleanHandler(i) {
+            // Add something big and unique to the closure. The i at the
+            // beginning and end are to avoid the browser using some
+            // clever reuse of strings.
+            var html = i + bigString + i;
+            return function() {
+                alert(html);
+            };
+        }
+
+        function mainLoop(i) {
+            // The "el" element is only referenced locally in this function.
+            // When this function returns, the "el" element should be
+            // garbage collected.
+            var el = document.createElement('p');
+
+            var handler = createCleanHandler(i);
+
+            var jQueryObject = $(el);
+
+            if (attachHandler) {
+                jQueryObject.on('click', handler);
+                if (pureListeners) {
+                    jQueryObject.off('click');
+                }
+            }
+        }
+
+    </script>
+
+    <p><a href="#start" onclick="start();return false;">start</a></p>
+    <p><a href="#stop" onclick="stop();return false;">stop</a></p>
+
+</body>
+</html>

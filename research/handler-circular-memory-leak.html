@@ -11,6 +11,8 @@
         }
     </style>
 
+    <script src="lib.js" type="text/javascript"></script>
+
 </head>
 <body>
 
@@ -23,21 +25,8 @@
     <p>Click start and watch memory usage of the browser in the operating system. In IE6, for example, the memory usage should increase monotonically. After clicking the stop link, the memory use should plateau and only start increasing again after clicking start again. The memory use of the OS will only garbage collect when IE6 is closed if Windows XP Service Pack 3 (SP3) is <em>not</em> installed. If SP3 <em>is</em> installed then apparently the memory should be garbage collected when the page is unloaded (i.e. refreshing the browser or navigating to another web page.) I don't have SP3 and so have not confirmed this.</p>
 
     <p>Another test can be performed to see the solution to the circular memory leak problem. Click start and watch memory usage of the browser in the operating system. In IE6, for example, the memory usage should increase monotonically. After clicking the break memory loop "true" link, the memory use should plateau. Although more DOM nodes and event handlers are created after clicking the break memory loop "true" link, these new DOM nodes are not kept in the handler functions' closures. If you then click the break memory loop "false" link, the memory use should start growing again.</p>
-    
-    <p>You can also choose a different DOM model to use. It is recommended that you change the DOM model <strong>before</strong> clicking the start link and then don't change the DOM model again. If you know how to interpret the results while changing the DOM model while the test is running then you can.</p>
 
-    <script type="text/javascript">
-        // Build a big string that can be used to create
-        // big memory garbage.
-        var bigString = (function() {
-            var littleString = 'abcdefghijklmnopqrstuvwxyz';
-            var growingString = '';
-            for (var i = 0; i < 10000; i++) {
-                growingString += littleString;
-            }
-            return growingString;
-        }());
-    </script>
+    <p>You can also choose a different DOM model to use. It is recommended that you change the DOM model <strong>before</strong> clicking the start link and then don't change the DOM model again. If you know how to interpret the results while changing the DOM model while the test is running then you can. Certain DOM models are not implemented in certain browser. For example DOM2 is not implemented in IE6. Don't set the DOM model to one that is not implemented in the particular browser being tested.</p>
 
     <p>Choose DOM model: (currently using "<span id="domModelReporter"></span>")</p>
 
@@ -61,7 +50,7 @@
     <p>Set break memory loop: (currently set to "<span id="breakMemoryLoopReporter"></span>")</p>
 
     <script type="text/javascript">
-        
+
         var breakMemoryLoop;
         function setBreakMemoryLoop(bool) {
             breakMemoryLoop = bool;
@@ -73,37 +62,40 @@
 
     <ul>
         <li><a href="#break-memory-loop-falue" onclick="setBreakMemoryLoop(false);return false;">false</a></li>
-       <li><a href="#break-memory-loop-true" onclick="setBreakMemoryLoop(true);return false;">true</a></li>
+        <li><a href="#break-memory-loop-true" onclick="setBreakMemoryLoop(true);return false;">true</a></li>
     </ul>
 
     <p>Running indicator: <span id="runningReporter"></span></p>
 
     <script type="text/javascript">
-    
-        function createMemoryLoop(i) {
+
+        function mainLoop(i) {
             // The "el" element is only referenced locally in this function.
-            // When this function returns, the "el" element should be 
-            // garbage collected.
+            // When this function returns, the "el" element should be
+            // garbage collected. In the case of memory leaks it is not.
             var el = document.createElement('p');
-            
+
             // Add something big and unique to the closure. The i at the
             // beginning and end are to avoid the browser using some
             // clever reuse of strings.
             var html = i + bigString + i;
-            
-            // Create a circular reference. The event handler has
-            // the "el" element in its closure but not explicitely used
-            // inside the handler.
+
+            // The event handler has the "el" element in its closure
+            // but not explicitely used inside the handler on purpose.
+            // One of the main use case in browser scripts has the "el" element
+            // in the handler function's closure but not used in the closure.
             var handler = function() {
                 // The body of this event handler will never execute
                 // but we want to ensure that html is captured in closure
                 // in a meaninful way so the browser doesn't do any
                 // clever closure optimizations. If html was not used
                 // in this closure then the browser might allow it to be
-                // garbage collected.
+                // garbage collected if the browser could determine that
+                // html would never be used.
                 alert(html);
             };
-            
+
+            // Create a circular reference.
             if (domModel === 'DOM0') {
                 el.onclick = handler;
             }
@@ -116,49 +108,14 @@
             else {
                 alert('error: unknown domModel "'+domModel+'".');
             }
-            
+
             if (breakMemoryLoop) {
+                // Break the circular reference. The handler
+                // will no longer have the "el" element in its closure.
                 el = null;
             }
         }
 
-        var throbber = '.';
-        function updateRunningReporter(i) {
-             // Don't want to update reporter every iteration. That is 
-             // unnecessary, too much
-             // DOM manipulation and to frantic for a human to watch.
-            if (i % 10 === 0) {
-                var reporter = document.getElementById('runningReporter');
-                // Don't want the reporter to grow indefinitely so occasionally
-                // clear it and start growing again.
-                throbber = (i % 500 === 0) ? '.' : (throbber + '.');
-                reporter.innerHTML = throbber;
-            }
-        }
-
-        var timeout;
-        function iterate(i) {
-            createMemoryLoop(i);
-            updateRunningReporter(i);
-            // Use setTimeout to avoid long running script warning alerts
-            // since we specifically want this to just keep going and going.
-            //
-            // Use a string as the first argument to setTimeout to avoid
-            // any unknown closure issues the browser may have.
-            timeout = setTimeout('iterate('+(i+1)+')', 10);
-        }
-
-        function start() {
-            iterate(0);
-        }
-
-        function stop() {
-            if (timeout) {
-                clearTimeout(timeout);
-                timeout = null;
-            }
-        }
-        
     </script>
 
     <p><a href="#start" onclick="start();return false;">start</a></p>
