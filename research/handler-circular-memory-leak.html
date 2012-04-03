@@ -22,11 +22,34 @@
         <p class="warningMessage">JavaScript not enabled in this browser.</p>
     </noscript>
 
-    <p>Click start and watch memory usage of the browser in the operating system. In IE6, for example, the memory usage should increase monotonically. After clicking the stop link, the memory use should plateau and only start increasing again after clicking start again. The memory use of the OS will only garbage collect when IE6 is closed if Windows XP Service Pack 3 (SP3) is <em>not</em> installed. If SP3 <em>is</em> installed then apparently the memory should be garbage collected when the page is unloaded (i.e. refreshing the browser or navigating to another web page.) I don't have SP3 and so have not confirmed this.</p>
+    <p>Click start and watch memory usage of the browser in the operating
+    system. In IE6, for example, the memory usage should increase monotonically.
+    After clicking the stop link, the memory use should plateau and only start
+    increasing again after clicking start again. The memory use of the OS will
+    only garbage collect when IE6 is closed if Windows XP Service Pack 3 (SP3)
+    is <em>not</em> installed. If SP3 <em>is</em> installed then apparently
+    the memory should be garbage collected when the page is unloaded (i.e.
+    refreshing the browser or navigating to another web page.) I don't have
+    SP3 and so have not confirmed this.</p>
 
-    <p>Another test can be performed to see the solution to the circular memory leak problem. Click start and watch memory usage of the browser in the operating system. In IE6, for example, the memory usage should increase monotonically. After clicking the break memory loop "true" link, the memory use should plateau. Although more DOM nodes and event handlers are created after clicking the break memory loop "true" link, these new DOM nodes are not kept in the handler functions' closures. If you then click the break memory loop "false" link, the memory use should start growing again.</p>
+    <p>Another test can be performed to see the solution to the circular
+    memory leak problem. Click start and watch memory usage of the browser
+    in the operating system. In IE6, for example, the memory usage should
+    increase monotonically. After clicking the break memory loop "true" link,
+    the memory use should plateau. Although more DOM nodes and event handlers
+    are created after clicking the break memory loop "true" link, these new
+    DOM nodes are not kept in the handler functions' closures. If you then
+    click the break memory loop "false" link, the memory use should start
+    growing again.</p>
 
-    <p>You can also choose a different DOM model to use. It is recommended that you change the DOM model <strong>before</strong> clicking the start link and then don't change the DOM model again. If you know how to interpret the results while changing the DOM model while the test is running then you can. Certain DOM models are not implemented in certain browser. For example DOM2 is not implemented in IE6. Don't set the DOM model to one that is not implemented in the particular browser being tested.</p>
+    <p>You can also choose a different DOM model to use. It is recommended
+    that you change the DOM model <strong>before</strong> clicking the start
+    link and then don't change the DOM model again. If you know how
+    to interpret the results while changing the DOM model while the test
+    is running then you can. Certain DOM models are not implemented in
+    certain browser. For example DOM2 is not implemented in IE6. Don't set
+    the DOM model to one that is not implemented in the particular browser
+    being tested.</p>
 
     <p>Choose DOM model: (currently using "<span id="domModelReporter"></span>")</p>
 

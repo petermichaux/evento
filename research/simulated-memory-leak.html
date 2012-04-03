@@ -22,13 +22,25 @@
         <p class="warningMessage">JavaScript not enabled in this browser.</p>
     </noscript>
 
-    <p>This file helps ensure you can actually observe memory leaks with your OS tools. This simulate a memory leak by adding more and more globally accessible objects that cannot be collected because of their global references. You should see the memory grow and grow in your OS tools.</p>
+    <p>This file helps ensure you can actually observe memory leaks with your
+    OS tools. This simulate a memory leak by adding more and more globally
+    accessible objects that cannot be collected because of their global
+    references. You should see the memory grow and grow in your OS tools.</p>
 
-    <p>Click start and watch memory usage of the browser in the operating system. The memory usage should increase monotonically. After clicking the stop link, the memory use should plateau and only start increasing again after clicking start again.</p>
+    <p>Click start and watch memory usage of the browser in the operating
+    system. The memory usage should increase monotonically. After clicking
+    the stop link, the memory use should plateau and only start increasing
+    again after clicking start again.</p>
 
-    <p>The "release accumulated objects" link will break the global references to the many objects and thus allow the browser to garbage collect them. The memory use should drop down (sometimes gc doesn't happen immediately so wait a bit) and then start growing again. This makes a saw tooth graph of memory in use vs time if you click the "release accumulated objects" occasionally.</p>
+    <p>The "release accumulated objects" link will break the global references
+    to the many objects and thus allow the browser to garbage collect them.
+    The memory use should drop down (sometimes gc doesn't happen immediately
+    so wait a bit) and then start growing again. This makes a saw tooth graph
+    of memory in use vs time if you click the "release accumulated objects"
+    occasionally.</p>
 
-    <p>Try reloading the page or navigating to another web page. This should release the objects in this page and garbage collection should occur.</p>
+    <p>Try reloading the page or navigating to another web page. This should
+    release the objects in this page and garbage collection should occur.</p>
 
     <script type="text/javascript">
 

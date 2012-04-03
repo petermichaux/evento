@@ -24,13 +24,29 @@
         <p class="warningMessage">JavaScript not enabled in this browser.</p>
     </noscript>
 
-    <p>This file shows that even in browsers that do not leak memory by themselves, jQuery, like other libraries, causes memory to leak from the perspective of the application programmer using jQuery. I believe this is because wrapped handlers are cached in a globally accessible object. I need to investigate more about why. Regardless of why, adding handlers using jQuery does cause memory to leak.</p>
+    <p>This file shows that even in browsers that do not leak memory by 
+    themselves, jQuery, like other libraries, causes memory to leak from
+    the perspective of the application programmer using jQuery. I believe
+    this is because wrapped handlers are cached in a globally accessible
+    object. I need to investigate more about why. Regardless of why, adding
+    handlers using jQuery does cause memory to leak.</p>
 
-    <p>Click start and watch memory usage of the browser in the operating system. The memory usage should increase monotonically because jQuery is creating a memory leak. After clicking the stop link, the memory use should plateau and only start increasing again after clicking start again.</p>
+    <p>Click start and watch memory usage of the browser in the operating
+    system. The memory usage should increase monotonically because
+    jQuery is creating a memory leak. After clicking the stop link,
+    the memory use should plateau and only start increasing again
+    after clicking start again.</p>
 
-    <p>If you set attach handler to "false" then more elements and handlers continue to be created but the handlers are not attached to the elements. This should stop the memory leaking.</p>
+    <p>If you set attach handler to "false" then more elements and handlers
+    continue to be created but the handlers are not attached to the
+    elements. This should stop the memory leaking.</p>
 
-    <p>If attach handler is "true" and you set purge to "true" then the attached handler is removed from the element before the reference to the element is lost. This should stop the memory leaking. This technique of purging handlers from elements before application code looses its last reference to the element is the recommended approach of many libraries to avoid the memory leaking.</p>
+    <p>If attach handler is "true" and you set purge to "true" then the
+    attached handler is removed from the element before the reference
+    to the element is lost. This should stop the memory leaking. This
+    technique of purging handlers from elements before application code
+    looses its last reference to the element is the recommended approach
+    of many libraries to avoid the memory leaking.</p>
 
     <p>Set attach handler: (currently set to "<span id="attachHandlerReporter"></span>")</p>
 
