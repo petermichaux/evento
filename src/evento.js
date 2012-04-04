@@ -4,10 +4,6 @@ var LIB_purgeEventListeners;
 
 (function() {
 
-    function hasOwnProperty(o, p) {
-        return Object.prototype.hasOwnProperty.call(o, p);
-    }
-
     function createListener(element, type, listener, /*optional*/ auxArg) {
         var o = {
             element: element,
@@ -36,10 +32,10 @@ var LIB_purgeEventListeners;
         return (a.element === b.element) &&
                (a.type === b.type) &&
                (a.listener === b.listener) &&
-               ((!hasOwnProperty(a, 'auxArg') &&
-                 !hasOwnProperty(b, 'auxArg')) ||
-                (hasOwnProperty(a, 'auxArg') &&
-                 hasOwnProperty(b, 'auxArg') &&
+               ((!a.hasOwnProperty('auxArg') &&
+                 !b.hasOwnProperty('auxArg')) ||
+                (a.hasOwnProperty('auxArg') &&
+                 b.hasOwnProperty('auxArg') &&
                  (a.auxArg === b.auxArg)));
     }
 
@@ -135,7 +131,7 @@ var LIB_purgeEventListeners;
             var listeners = getElementListeners(element);
             for (var i = 0, ilen = listeners.length; i < ilen; i++) {
                 var listener = listeners[i];
-                if (hasOwnProperty(listener, 'auxArg')) {
+                if (listener.hasOwnProperty('auxArg')) {
                     LIB_removeEventListener(listener.element, listener.type, listener.listener, listener.auxArg);
                 }
                 else {
