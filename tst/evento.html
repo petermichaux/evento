@@ -31,6 +31,31 @@
         }
     </script>
 
+
+    <div id="simple_ex" class="example">
+
+        <h2>Function.prototype.apply preserves arguments.length</h2>
+
+        <p>Evento depends on Function.prototype.apply preserving
+        arguments.length from caller to callee. This is a feature of apply
+        that is not commonly depended upon and perhaps some browser
+        somewhere gets this wrong. Test it to be safe.</p>
+
+        <script type="text/javascript">
+            function applyArgumentsCheckAlert() {
+                alert(arguments.length);
+            }
+            function applyArgumentsCheck() {
+                applyArgumentsCheckAlert.apply(null, arguments);
+            }
+        </script>
+
+        <p><a href="#applyArgumentsCheck" onclick="applyArgumentsCheck('a', 'b');return false;">click here and alert should show "2"</a></p>
+        <p><a href="#applyArgumentsCheck" onclick="applyArgumentsCheck('a', 'b', 'c');return false;">click here and alert should show "3"</a></p>
+
+    </div>
+
+
     <div id="simple_ex" class="example">
 
       <h2>Simple</h2>
@@ -56,6 +81,45 @@
       </script>
 
     </div>
+
+
+    <div id="purge_ex" class="example">
+
+        <h2>Purge</h2>
+
+        <p>The grey boxes have DOM2 and legacy listeners. Click <a href="#" onclick="LIB_purgeEventListeners(document.getElementById('purge'));return false;">Go!</a> to remove the all listeners added through evento API.</p>
+
+        <div id="purge" style="width:300px;height:100px;background:#444;position:relative;margin-left:auto;margin-right:auto;">
+            <div id="purge2" style="width:100px;height:50px;background:#555;top:25px;right:100px;position:absolute;">
+
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            var purgeObj = {
+                light: "#0ff",
+                dark: "#444",
+                simple: function(e) {
+                    document.getElementById('purge').style.background = this.light;
+                },
+                simple2: function(e) {
+                    document.getElementById('purge').style.background = this.dark;
+                },
+                simple3: function(e) {
+                    document.getElementById('purge2').style.background = "#ff0";
+                },
+                simple4: function(e) {
+                    document.getElementById('purge2').style.background = "#555";
+                }
+            };
+
+            LIB_addEventListener(document.getElementById('purge' ), 'mouseover', purgeObj.simple , purgeObj);
+            LIB_addEventListener(document.getElementById('purge' ), 'mouseout' , purgeObj.simple2, purgeObj);
+            LIB_addEventListener(document.getElementById('purge2'), 'mouseover', purgeObj.simple3, purgeObj);
+            LIB_addEventListener(document.getElementById('purge2'), 'mouseout' , purgeObj.simple4, purgeObj);
+        </script>
+    </div>
+
 
 </body>
 </html>

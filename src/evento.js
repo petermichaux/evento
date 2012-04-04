@@ -1,5 +1,6 @@
 var LIB_addEventListener;
 var LIB_removeEventListener;
+var LIB_purgeEventListeners;
 
 (function() {
 
@@ -23,32 +24,30 @@ var LIB_removeEventListener;
         if (arguments.length > 3) {
             o.auxArg = auxArg;
         }
-        if (typeof o.listener === 'function') {
-            o.thisObj = hasOwnProperty(o, 'auxArg') ? o.auxArg : element;
+        if (typeof listener === 'function') {
+            var thisObj = arguments.length > 3 ? auxArg : element;
+            o.wrappedHandler = function(evt) {
+                listener.call(thisObj, evt);
+            };
         }
         else {
-            o.methodName = hasOwnProperty(o, 'auxArg') ? o.auxArg : 'handleEvent';
+            var methodName = arguments.length > 3 ? auxArg : 'handleEvent';
+            o.wrappedHandler = function(evt) {
+                listener[methodName](evt);
+            };
         }
-        o.wrappedHandler = function(evt) {
-            if (typeof o.listener === 'function') { // TODO this check can be when o.wrappedHandler is set
-                o.listener.call(o.thisObj, evt); // o. doesn't need to be used because captured in closure
-            }
-            else {
-                o.listener[o.methodName](evt);
-            }
-        };
         return o;
     }
 
-    function listenersAreEqual(n, o) {
-        return (n.element === o.element) &&
-               (n.type === o.type) &&
-               (n.listener === o.listener) &&
-               ((!hasOwnProperty(n, 'auxArg') &&
-                 !hasOwnProperty(o, 'auxArg')) ||
-                (hasOwnProperty(n, 'auxArg') &&
-                 hasOwnProperty(o, 'auxArg') &&
-                 (n.auxArg === o.auxArg)));
+    function listenersAreEqual(a, b) {
+        return (a.element === b.element) &&
+               (a.type === b.type) &&
+               (a.listener === b.listener) &&
+               ((!hasOwnProperty(a, 'auxArg') &&
+                 !hasOwnProperty(b, 'auxArg')) ||
+                (hasOwnProperty(a, 'auxArg') &&
+                 hasOwnProperty(b, 'auxArg') &&
+                 (a.auxArg === b.auxArg)));
     }
 
     // TODO rename getEventListener and don't return false
@@ -74,14 +73,23 @@ var LIB_removeEventListener;
 
     var listeners = [];
 
+    var getElementListeners = function(element) {
+        var result = [];
+        for (var i=0, ilen=listeners.length; i<ilen; i++) {
+            var listener = listeners[i];
+            if (listener.element === element) {
+                result.push(listener);
+            }
+        }
+        return result;
+    };
+
     var makeAdder = function(guts) {
         return function(element, type, listener, /*optional*/ auxArg) {
-            // console.log('LIB_addEventListener called with "'+arguments.length+'" arguments.');
-            // TODO does using apply arguments do the same thing as the next three lines?
-            // If so then potentially use the same thing in EventTarget
-            var o = (arguments.length > 3) ?
-                        createListener(element, type, listener, auxArg) :
-                        createListener(element, type, listener);
+            // Want to call createListener with the same number of arguments
+            // that were passed to this function. Using apply preserves
+            // the number of arguments.
+            var o = createListener.apply(null, arguments);
             if (hasEventListener(listeners, o)) {
                 // do not add the same listener twice
                 return;
@@ -93,22 +101,16 @@ var LIB_removeEventListener;
 
     var makeRemover = function(guts) {
         return function(element, type, listener, /*optional*/ auxArg) {
-            // console.log('LIB_removeEventListener called with "'+arguments.length+'" arguments.');
-            // TODO does using apply arguments do the same thing as the next three lines?
-            // If so then potentially use the same thing in EventTarget
-            var o = (arguments.length > 3) ?
-                        createListener(element, type, listener, auxArg) :
-                        createListener(element, type, listener);
+            var o = createListener.apply(null, arguments);
             if (o = hasEventListener(listeners, o)) {
-                // console.log('removing');
-                // element.removeEventListener(o.type, o.wrappedHandler, false);
                 guts(o);
                 removeEventListener(listeners, o); // TODO not efficient because already looked for it with hasEventListener
             }
         };
     };
 
-    if (isHostMethod(document, 'addEventListener')) {
+    if (isHostMethod(document, 'addEventListener') &&
+        isHostMethod(document, 'removeEventListener')) {
 
         LIB_addEventListener = makeAdder(function(o) {
             o.element.addEventListener(o.type, o.wrappedHandler, false);
@@ -119,7 +121,8 @@ var LIB_removeEventListener;
         });
 
     }
-    else if (isHostMethod(document, 'attachEvent')) {
+    else if (isHostMethod(document, 'attachEvent') &&
+             isHostMethod(document, 'detachEvent')) {
 
         LIB_addEventListener = makeAdder(function(o) {
             o.element.attachEvent('on'+o.type, o.wrappedHandler);
@@ -128,6 +131,27 @@ var LIB_removeEventListener;
         LIB_removeEventListener = makeRemover(function(o) {
             o.element.detachEvent('on'+o.type, o.wrappedHandler);
         });
+
+    }
+
+    if (typeof LIB_removeEventListener === 'function') {
+
+        var purge = LIB_purgeEventListeners = function(element) {
+            var listeners = getElementListeners(element);
+            for (var i = 0, ilen = listeners.length; i < ilen; i++) {
+                var listener = listeners[i];
+                if (hasOwnProperty(listener, 'auxArg')) {
+                    LIB_removeEventListener(listener.element, listener.type, listener.listener, listener.auxArg);
+                }
+                else {
+                    LIB_removeEventListener(listener.element, listener.type, listener.listener);
+                }
+            }
+            // walk down the DOM tree
+            for (var i = 0, ilen = element.childNodes.length; i < ilen; i++) {
+                purge(element.childNodes[i]);
+            }
+        };
 
     }
 
