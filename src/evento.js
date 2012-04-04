@@ -8,13 +8,6 @@ var LIB_purgeEventListeners;
         return Object.prototype.hasOwnProperty.call(o, p);
     }
 
-    function isHostMethod(object, property) {
-        var type = typeof object[property];  
-        return type === 'function' ||
-               (type === 'object' && !!object[property]) ||
-               type === 'unknown';
-    }
-
     function createListener(element, type, listener, /*optional*/ auxArg) {
         var o = {
             element: element,
@@ -109,8 +102,8 @@ var LIB_purgeEventListeners;
         };
     };
 
-    if (isHostMethod(document, 'addEventListener') &&
-        isHostMethod(document, 'removeEventListener')) {
+    if (typeof document.addEventListener === 'function' &&
+        typeof document.removeEventListener === 'function') {
 
         LIB_addEventListener = makeAdder(function(o) {
             o.element.addEventListener(o.type, o.wrappedHandler, false);
@@ -121,8 +114,10 @@ var LIB_purgeEventListeners;
         });
 
     }
-    else if (isHostMethod(document, 'attachEvent') &&
-             isHostMethod(document, 'detachEvent')) {
+    else if (typeof document.attachEvent === 'object' &&
+             document.attachEvent !== null &&
+             typeof document.detachEvent === 'object' &&
+             document.detachEvent !== null) {
 
         LIB_addEventListener = makeAdder(function(o) {
             o.element.attachEvent('on'+o.type, o.wrappedHandler);
