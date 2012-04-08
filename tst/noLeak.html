@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>No Leak</title>
+
+    <style type="text/css">
+        .warningMessage {
+            border: 10px solid red;
+            padding: 10px;
+        }
+    </style>
+
+    <!-- TODO -->
+    <script src="../research/lib.js" type="text/javascript"></script>
+    
+    <script src="../src/eventTarget.js" type="text/javascript"></script>
+
+</head>
+<body>
+
+    <h1>No Leak</h1>
+
+    <noscript>
+        <p class="warningMessage">JavaScript not enabled in this browser.</p>
+    </noscript>
+
+    <p>TODO.</p>
+
+    <p>Click start and watch memory usage of the browser in the operating
+    system. The memory usage should increase monotonically because
+    jQuery is creating a memory leak. After clicking the stop link,
+    the memory use should plateau and only start increasing again
+    after clicking start again.</p>
+
+    <p>Running indicator: <span id="runningReporter"></span></p>
+
+    <script type="text/javascript">
+
+        function createCleanHandler(i) {
+            // Add something big and unique to the closure. The i at the
+            // beginning and end are to avoid the browser using some
+            // clever reuse of strings.
+            var html = i + bigString + i;
+            return function() {
+                alert(html);
+            };
+        }
+
+        function mainLoop(i) {
+            // The "el" element is only referenced locally in this function.
+            // When this function returns, the "el" element should be
+            // garbage collected.
+            var el = document.createElement('p');
+
+            var handler = createCleanHandler(i);
+
+            LIB_addEventListener(el, 'click', handler);
+        }
+
+    </script>
+
+    <p><a href="#start" onclick="start();return false;">start</a></p>
+    <p><a href="#stop" onclick="stop();return false;">stop</a></p>
+
+</body>
+</html>

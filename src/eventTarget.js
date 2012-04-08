@@ -43,7 +43,7 @@ the event target, the listener object's handleEvent method will be called.
 Using the auxArg you can specify the name of the method to be called.
 
 If the listener is a function then when a matching event type is dispatched on
-the event target, the listener function is called with event target object set as
+the event target, the listener function is called with the global object set as
 the "this" object. Using the auxArg you can specifiy a different object to be
 the "this" object.
 
@@ -105,23 +105,22 @@ var LIB_purgeEventListeners;
 
 (function() {
 
-    function createListener(element, type, listener, /*optional*/ auxArg) {
+    function createListener(type, listener, /*optional*/ auxArg) {
         var o = {
-            element: element,
             type: type,
             listener: listener
         };
-        if (arguments.length > 3) {
+        if (arguments.length > 2) {
             o.auxArg = auxArg;
         }
         if (typeof listener === 'function') {
-            var thisObj = arguments.length > 3 ? auxArg : element;
+            var thisObj = arguments.length > 2 ? auxArg : undefined;
             o.wrappedHandler = function(evt) {
                 listener.call(thisObj, evt);
             };
         }
         else {
-            var methodName = arguments.length > 3 ? auxArg : 'handleEvent';
+            var methodName = arguments.length > 2 ? auxArg : 'handleEvent';
             o.wrappedHandler = function(evt) {
                 listener[methodName](evt);
             };
@@ -130,8 +129,7 @@ var LIB_purgeEventListeners;
     }
 
     function listenersAreEqual(a, b) {
-        return (a.element === b.element) &&
-               (a.type === b.type) &&
+        return (a.type === b.type) &&
                (a.listener === b.listener) &&
                ((!a.hasOwnProperty('auxArg') &&
                  !b.hasOwnProperty('auxArg')) ||
@@ -140,9 +138,7 @@ var LIB_purgeEventListeners;
                  (a.auxArg === b.auxArg)));
     }
 
-    var listeners = [];
-
-    function indexOfListener(o) {
+    function indexOfListener(listeners, o) {
         for (var i = 0, ilen = listeners.length; i < ilen; i++) {
             if (listenersAreEqual(listeners[i], o)) {
                 return i;
@@ -153,25 +149,35 @@ var LIB_purgeEventListeners;
 
     var makeAdder = function(guts) {
         return function(element, type, listener, /*optional*/ auxArg) {
-            // Want to call createListener with the same number of arguments
-            // that were passed to this function. Using apply preserves
-            // the number of arguments.
-            var o = createListener.apply(null, arguments);
-            if (indexOfListener(o) >= 0) {
-                // do not add the same listener twice
-                return;
+            var o = (arguments.length > 3) ?
+                        createListener(type, listener, auxArg) :
+                        createListener(type, listener);
+            if (element._LIB_listeners) {
+                if (indexOfListener(element._LIB_listeners, o) >= 0) {
+                    // do not add the same listener twice
+                    return;
+                }
             }
-            guts(o);
-            listeners.push(o);
+            else {
+                element._LIB_listeners = [];
+            }
+            guts(element, o);
+            element._LIB_listeners.push(o);
         };
     };
 
     var makeRemover = function(guts) {
         return function(element, type, listener, /*optional*/ auxArg) {
-            var i = indexOfListener(createListener.apply(null, arguments));
+            if (!element._LIB_listeners) {
+                return;
+            }
+            var o = (arguments.length > 3) ?
+                        createListener(type, listener, auxArg) :
+                        createListener(type, listener);
+            var i = indexOfListener(element._LIB_listeners, o);
             if (i >= 0) {
-                guts(listeners[i]);
-                listeners.splice(i, 1);
+                guts(element, element._LIB_listeners[i]);
+                element._LIB_listeners.splice(i, 1);
             }
         };
     };
@@ -179,12 +185,12 @@ var LIB_purgeEventListeners;
     if ((typeof document.addEventListener === 'function') &&
         (typeof document.removeEventListener === 'function')) {
 
-        LIB_addEventListener = makeAdder(function(o) {
-            o.element.addEventListener(o.type, o.wrappedHandler, false);
+        LIB_addEventListener = makeAdder(function(element, o) {
+            element.addEventListener(o.type, o.wrappedHandler, false);
         });
 
-        LIB_removeEventListener = makeRemover(function(o) {
-            o.element.removeEventListener(o.type, o.wrappedHandler, false);
+        LIB_removeEventListener = makeRemover(function(element, o) {
+            element.removeEventListener(o.type, o.wrappedHandler, false);
         });
 
     }
@@ -193,40 +199,29 @@ var LIB_purgeEventListeners;
              (typeof document.detachEvent === 'object') &&
              (document.detachEvent !== null)) {
 
-        LIB_addEventListener = makeAdder(function(o) {
-            o.element.attachEvent('on'+o.type, o.wrappedHandler);
+        LIB_addEventListener = makeAdder(function(element, o) {
+            element.attachEvent('on'+o.type, o.wrappedHandler);
         });
 
-        LIB_removeEventListener = makeRemover(function(o) {
-            o.element.detachEvent('on'+o.type, o.wrappedHandler);
+        LIB_removeEventListener = makeRemover(function(element, o) {
+            element.detachEvent('on'+o.type, o.wrappedHandler);
         });
 
     }
 
     if (typeof LIB_removeEventListener === 'function') {
 
-        // An inelegant and inefficient purge algorithm.
-
-        var getElementListeners = function(element) {
-            var result = [];
-            for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-                var listener = listeners[i];
-                if (listener.element === element) {
-                    result.push(listener);
-                }
-            }
-            return result;
-        };
-
         var purge = LIB_purgeEventListeners = function(element) {
-            var listeners = getElementListeners(element);
-            for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-                var listener = listeners[i];
-                if (listener.hasOwnProperty('auxArg')) {
-                    LIB_removeEventListener(listener.element, listener.type, listener.listener, listener.auxArg);
-                }
-                else {
-                    LIB_removeEventListener(listener.element, listener.type, listener.listener);
+            if (element._LIB_listeners) {
+                var listeners = element._LIB_listeners.slice(0);
+                for (var i = 0, ilen = listeners.length; i < ilen; i++) {
+                    var listener = listeners[i];
+                    if (listener.hasOwnProperty('auxArg')) {
+                        LIB_removeEventListener(element, listener.type, listener.listener, listener.auxArg);
+                    }
+                    else {
+                        LIB_removeEventListener(element, listener.type, listener.listener);
+                    }
                 }
             }
             // walk down the DOM tree
