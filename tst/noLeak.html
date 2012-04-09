@@ -25,13 +25,8 @@
         <p class="warningMessage">JavaScript not enabled in this browser.</p>
     </noscript>
 
-    <p>TODO.</p>
-
     <p>Click start and watch memory usage of the browser in the operating
-    system. The memory usage should increase monotonically because
-    jQuery is creating a memory leak. After clicking the stop link,
-    the memory use should plateau and only start increasing again
-    after clicking start again.</p>
+    system. The memory usage should not increase endlessly.</p>
 
     <p>Running indicator: <span id="runningReporter"></span></p>
 
@@ -56,6 +51,7 @@
             var handler = createCleanHandler(i);
 
             LIB_addEventListener(el, 'click', handler);
+            LIB_removeEventListener(el, 'click', handler);
         }
 
     </script>
