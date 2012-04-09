@@ -55,10 +55,9 @@
 
     </div>
 
-
     <div id="simple_ex" class="example">
 
-      <h2>Simple</h2>
+      <h2>Listener functions</h2>
 
       <ol>
           <li>Mouse over the grey box and see the background become blue.</li>
@@ -71,13 +70,43 @@
 
       <script type="text/javascript">
           function simpleOver(e) {
-              document.getElementById('one').style.background = "#00f";
+              this.style.background = "#00f";
           }
           function simpleOut(e) {
-              document.getElementById('one').style.background = "#444";
+              this.style.background = "#444";
           }
           LIB_addEventListener(document.getElementById('one'), 'mouseover', simpleOver);
           LIB_addEventListener(document.getElementById('one'), 'mouseout', simpleOut);
+      </script>
+
+    </div>
+
+
+    <div id="simple2_ex" class="example">
+
+      <h2>Listener functions with auxArg setting thisObj</h2>
+
+      <ol>
+          <li>Mouse over the grey box and see the background become blue.</li>
+          <li>Mouse out of the blue box and see the background become grey again.</li>
+          <li> Click <a href="#" onclick="LIB_removeEventListener(document.getElementById('two'), 'mouseover', simpleOverAndOutObj.handlerOver, simpleOverAndOutObj);LIB_removeEventListener(document.getElementById('two'), 'mouseout', simpleOverAndOutObj.handlerOut, simpleOverAndOutObj);return false;">here</a> to remove the mouseover and mouseout listeners.</li>
+          <li>Mouse over and out of the grey box and see the background stay grey.</li>
+      </ol>
+
+      <div id="two" style="width:300px;height:100px;background:#444;margin-left:auto;margin-right:auto;"></div>
+
+      <script type="text/javascript">
+          var simpleOverAndOutObj = {
+              el: document.getElementById('two'),
+              handlerOver: function(e) {
+                  this.el.style.background = '#00F';
+              },
+              handlerOut: function(e) {
+                  this.el.style.background = '#444';
+              }
+          };
+          LIB_addEventListener(document.getElementById('two'), 'mouseover', simpleOverAndOutObj.handlerOver, simpleOverAndOutObj);
+          LIB_addEventListener(document.getElementById('two'), 'mouseout', simpleOverAndOutObj.handlerOut, simpleOverAndOutObj);
       </script>
 
     </div>
@@ -97,6 +126,68 @@
                 alert(evt.type);
             }
             LIB_addEventListener(document.getElementById('passed'), 'click', passedHandler);
+        </script>
+    </div>
+
+
+    <div id="listenerObj1_ex" class="example">
+
+        <h2>Listener Object with auxArg method name</h2>
+
+        <p>Mouseover and mouseout to see the colour change. Click <a href="#remove" onclick="LIB_removeEventListener(document.getElementById('listenerObj1'), 'mouseover', listenerObj1, 'handleMouseover');LIB_removeEventListener(document.getElementById('listenerObj1'), 'mouseout' , listenerObj1, 'handleMouseout' );return false;">remove</a> to remove the listeners.</p>
+
+        <div style="margin-left:auto;margin-right:auto;">
+            <div id="listenerObj1" style="width:100px;height:100px;background:#444;">
+            </div>
+        </div>
+
+        <script type="text/javascript">
+        
+            var listenerObj1 = {
+                el1: document.getElementById('listenerObj1'),
+                handleMouseover: function() {
+                    this.el1.style.background = '#F00';
+                },
+                handleMouseout: function() {
+                    this.el1.style.background = '#444';
+                }
+            };
+
+            LIB_addEventListener(document.getElementById('listenerObj1' ), 'mouseover', listenerObj1, 'handleMouseover');
+            LIB_addEventListener(document.getElementById('listenerObj1' ), 'mouseout' , listenerObj1, 'handleMouseout' );
+        </script>
+    </div>
+
+
+    <div id="listenerObj2_ex" class="example">
+
+        <h2>Listener Object with handleEvent method</h2>
+
+        <p>Mouseover and mouseout to see the colour change. Click <a href="#remove" onclick="LIB_removeEventListener(document.getElementById('listenerObj2'), 'mouseover', listenerObj2a);LIB_removeEventListener(document.getElementById('listenerObj2'), 'mouseout' , listenerObj2b);return false;">remove</a> to remove the listeners.</p>
+
+        <div style="margin-left:auto;margin-right:auto;">
+            <div id="listenerObj2" style="width:100px;height:100px;background:#444;">
+            </div>
+        </div>
+
+        <script type="text/javascript">
+
+            var listenerObj2a = {
+                el2: document.getElementById('listenerObj2'),
+                handleEvent: function() {
+                    this.el2.style.background = '#F00';
+                }
+            };
+
+            var listenerObj2b = {
+                el2: document.getElementById('listenerObj2'),
+                handleEvent: function() {
+                    this.el2.style.background = '#444';
+                }
+            };
+
+            LIB_addEventListener(document.getElementById('listenerObj2' ), 'mouseover', listenerObj2a);
+            LIB_addEventListener(document.getElementById('listenerObj2' ), 'mouseout' , listenerObj2b);
         </script>
     </div>
 
