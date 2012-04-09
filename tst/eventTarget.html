@@ -83,6 +83,24 @@
     </div>
 
 
+    <div id="passed_ex" class="example">
+
+        <h2>Event Passed</h2>
+
+        <p>Is an event object passed to the handler. Click the grey box. The alert should say "click" which is the event type read from the event object passed to the handler.</p>
+
+        <div id="passed" style="width:300px;height:100px;background:#444;position:relative;margin-left:auto;margin-right:auto;">
+        </div>
+
+        <script type="text/javascript">
+            function passedHandler(evt) {
+                alert(evt.type);
+            }
+            LIB_addEventListener(document.getElementById('passed'), 'click', passedHandler);
+        </script>
+    </div>
+
+
     <div id="purge_ex" class="example">
 
         <h2>Purge</h2>
