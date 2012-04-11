@@ -28,7 +28,7 @@
 
 @property LIB_addEventListener
 
-@parameter element {EventTarget} The DOM element you'd like to observe.
+@parameter element {EventTarget} The object you'd like to observe.
 
 @parameter type {string} The name of the event.
 
@@ -61,7 +61,7 @@ LIB_addEventListener(document.body, 'click', this.handleClick, this);
 
 @property LIB_removeEventListener
 
-@parameter element {EventTarget} The DOM element you'd like to stop observing.
+@parameter element {EventTarget} The object you'd like to stop observing.
 
 @parameter type {string} The name of the event.
 
@@ -151,57 +151,45 @@ var LIB_purgeEventListeners;
         return -1;
     }
 
-    var makeAdder = function(guts) {
-        return function(element, type, listener, /*optional*/ auxArg) {
-            // Want to call createListener with the same number of arguments
-            // that were passed to this function. Using apply preserves
-            // the number of arguments.
-            var o = createListener.apply(null, arguments);
-            if (indexOfListener(o) >= 0) {
-                // do not add the same listener twice
-                return;
-            }
-            guts(o);
-            listeners.push(o);
-        };
-    };
-
-    var makeRemover = function(guts) {
-        return function(element, type, listener, /*optional*/ auxArg) {
-            var i = indexOfListener(createListener.apply(null, arguments));
-            if (i >= 0) {
-                guts(listeners[i]);
-                listeners.splice(i, 1);
-            }
-        };
-    };
-
-    if ((typeof document.addEventListener === 'function') &&
-        (typeof document.removeEventListener === 'function')) {
-
-        LIB_addEventListener = makeAdder(function(o) {
-            o.element.addEventListener(o.type, o.wrappedHandler, false);
-        });
-
-        LIB_removeEventListener = makeRemover(function(o) {
-            o.element.removeEventListener(o.type, o.wrappedHandler, false);
-        });
-
-    }
-    else if ((typeof document.attachEvent === 'object') &&
-             (document.attachEvent !== null) &&
-             (typeof document.detachEvent === 'object') &&
-             (document.detachEvent !== null)) {
-
-        LIB_addEventListener = makeAdder(function(o) {
+    LIB_addEventListener = function(element, type, listener, /*optional*/ auxArg) {
+        // Want to call createListener with the same number of arguments
+        // that were passed to this function. Using apply preserves
+        // the number of arguments.
+        var o = createListener.apply(null, arguments);
+        if (indexOfListener(o) >= 0) {
+            // do not add the same listener twice
+            return;
+        }
+        if (typeof element.addEventListener === 'function') {
+            o.element.addEventListener(o.type, o.wrappedHandler, false); 
+        }
+        else if ((typeof element.attachEvent === 'object') &&
+                 (element.attachEvent !== null)) {
             o.element.attachEvent('on'+o.type, o.wrappedHandler);
-        });
+        }
+        else {
+            throw new Error('LIB_addEventListener: Supported EventTarget interface not found.');
+        }
+        listeners.push(o);
+    };
 
-        LIB_removeEventListener = makeRemover(function(o) {
-            o.element.detachEvent('on'+o.type, o.wrappedHandler);
-        });
-
-    }
+    LIB_removeEventListener = function(element, type, listener, /*optional*/ auxArg) {
+        var i = indexOfListener(createListener.apply(null, arguments));
+        if (i >= 0) {
+            var o = listeners[i];
+            if (typeof o.element.removeEventListener === 'function') {
+                o.element.removeEventListener(o.type, o.wrappedHandler, false);
+            } 
+            else if ((typeof element.detachEvent === 'object') &&
+                     (element.detachEvent !== null)) {
+                o.element.detachEvent('on'+o.type, o.wrappedHandler);
+            } 
+            else {
+                throw new Error('LIB_removeEventListener: Supported EventTarget interface not found.');
+            } 
+            listeners.splice(i, 1);
+        }
+    };
 
     if (typeof LIB_removeEventListener === 'function') {
 
