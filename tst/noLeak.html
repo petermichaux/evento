@@ -51,7 +51,9 @@
             var handler = createCleanHandler(i);
 
             LIB_addEventListener(el, 'click', handler);
-            LIB_removeEventListener(el, 'click', handler);
+            // Browsers with circular reference memory leaks need the next line
+            // to not leak memory.
+            //LIB_removeEventListener(el, 'click', handler);
         }
 
     </script>

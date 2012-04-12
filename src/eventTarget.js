@@ -91,13 +91,15 @@ LIB_removeEventListener(document.body, 'click', this.handleClick, this);
 @description
 
 Removes all registrations of the listener added through LIB_addEventListener.
-This purging should be done before your application
-code looses its last reference to listener. Otherwise memory will leak
-as this library will hold references to the listener, the event targets with which
-it is registerd, and auxArg (if it was used) and all objects referenced
-by those objects through property or closure references.
+This purging should be done before your application code looses its last reference
+to listener. (This can also be done with more work using LIB_removeEventListener for
+each registeration.) If the listeners are not removed or purged, the listener
+will continue to observe the EventTarget and cannot be garbage collected. In an
+MVC application this can lead to "zombie views" if the model data cannot be
+garbage collected. Event listeners need to be removed from event targets in browsers
+with circular reference memory leak problems (i.e. old versions of Internet Explorer.)
 
-The primary goal of this purge function is to easy cleanup in MVC View destroy 
+The primary motivation for this purge function is to easy cleanup in MVC View destroy 
 methods. For example,
 
 var APP_BoxView = function(model, controller) {
@@ -173,9 +175,7 @@ var LIB_purgeEventListeners;
                  (a.auxArg === b.auxArg)));
     }
 
-    var listeners = [];
-
-    function indexOfListener(o) {
+    function indexOfListener(listeners, o) {
         for (var i = 0, ilen = listeners.length; i < ilen; i++) {
             if (listenersAreEqual(listeners[i], o)) {
                 return i;
@@ -189,9 +189,14 @@ var LIB_purgeEventListeners;
         // that were passed to this function. Using apply preserves
         // the number of arguments.
         var o = createListener.apply(null, arguments);
-        if (indexOfListener(o) >= 0) {
-            // do not add the same listener twice
-            return;
+        if (listener._LIB_listeners) {
+            if (indexOfListener(listener._LIB_listeners, o) >= 0) {
+                // do not add the same listener twice
+                return;
+            }            
+        }
+        else {
+            listener._LIB_listeners = [];
         }
         if (typeof element.addEventListener === 'function') {
             o.element.addEventListener(o.type, o.wrappedHandler, false); 
@@ -203,47 +208,40 @@ var LIB_purgeEventListeners;
         else {
             throw new Error('LIB_addEventListener: Supported EventTarget interface not found.');
         }
-        listeners.push(o);
+        listener._LIB_listeners.push(o);
     };
 
     LIB_removeEventListener = function(element, type, listener, /*optional*/ auxArg) {
-        var i = indexOfListener(createListener.apply(null, arguments));
-        if (i >= 0) {
-            var o = listeners[i];
-            if (typeof o.element.removeEventListener === 'function') {
-                o.element.removeEventListener(o.type, o.wrappedHandler, false);
-            } 
-            else if ((typeof element.detachEvent === 'object') &&
-                     (element.detachEvent !== null)) {
-                o.element.detachEvent('on'+o.type, o.wrappedHandler);
-            } 
-            else {
-                throw new Error('LIB_removeEventListener: Supported EventTarget interface not found.');
-            } 
-            listeners.splice(i, 1);
-        }
-    };
-
-    var getListeners = function(lstnr) {
-        var result = [];
-        for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-            var listener = listeners[i];
-            if (listener.listener === lstnr) {
-                result.push(listener);
+        if (listener._LIB_listeners) {
+            var i = indexOfListener(listener._LIB_listeners, createListener.apply(null, arguments));
+            if (i >= 0) {
+                var o = listener._LIB_listeners[i];
+                if (typeof o.element.removeEventListener === 'function') {
+                    o.element.removeEventListener(o.type, o.wrappedHandler, false);
+                } 
+                else if ((typeof element.detachEvent === 'object') &&
+                         (element.detachEvent !== null)) {
+                    o.element.detachEvent('on'+o.type, o.wrappedHandler);
+                } 
+                else {
+                    throw new Error('LIB_removeEventListener: Supported EventTarget interface not found.');
+                } 
+                listener._LIB_listeners.splice(i, 1);
             }
         }
-        return result;
     };
 
     LIB_purgeEventListeners = function(lstnr) {
-        var listeners = getListeners(lstnr);
-        for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-            var listener = listeners[i];
-            if (listener.hasOwnProperty('auxArg')) {
-                LIB_removeEventListener(listener.element, listener.type, listener.listener, listener.auxArg);
-            }
-            else {
-                LIB_removeEventListener(listener.element, listener.type, listener.listener);
+        if (lstnr._LIB_listeners) {
+            var listeners = lstnr._LIB_listeners.slice(0);
+            for (var i = 0, ilen = listeners.length; i < ilen; i++) {
+                var listener = listeners[i];
+                if (listener.hasOwnProperty('auxArg')) {
+                    LIB_removeEventListener(listener.element, listener.type, listener.listener, listener.auxArg);
+                }
+                else {
+                    LIB_removeEventListener(listener.element, listener.type, listener.listener);
+                }
             }
         }
     };
