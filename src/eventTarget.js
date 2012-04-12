@@ -127,7 +127,7 @@ APP_BoxView.prototype.destroy = function() {
     // to DOM nodes, model objects, or anything else implementing
     // the EventTarget interface in one fell swoop.
     //
-    LIB_purgeEventListeners(this); // (Bad library function name. Suggestions?)
+    LIB_purgeEventListeners(this);
 };
 
 */
