@@ -4,6 +4,7 @@
 <head>
     <title>Evento Tests</title>
 
+    <script src="../src/namespace.js" type="text/javascript"></script>
     <script src="../src/eventTarget.js" type="text/javascript"></script>
 
     <style type="text/css">
@@ -23,11 +24,14 @@
     </noscript>
 
     <script type="text/javascript">
-        if (typeof LIB_addEventListener !== 'function') {
-            document.write('<p class="warningMessage">LIB_addEventListener is not a function</p>');
+        if ((typeof evento !== 'object') || (evento === null)) {
+            document.write('<p class="warningMessage">evento is not defined</p>');
         }
-        if (typeof LIB_removeEventListener !== 'function') {
-            document.write('<p class="warningMessage">LIB_removeEventListener is not a function</p>');
+        if (typeof evento.addEventListener !== 'function') {
+            document.write('<p class="warningMessage">evento.addEventListener is not a function</p>');
+        }
+        if (typeof evento.removeEventListener !== 'function') {
+            document.write('<p class="warningMessage">evento.removeEventListener is not a function</p>');
         }
     </script>
 
@@ -62,7 +66,7 @@
       <ol>
           <li>Mouse over the grey box and see the background become blue.</li>
           <li>Mouse out of the blue box and see the background become grey again.</li>
-          <li> Click <a href="#" onclick="LIB_removeEventListener(document.getElementById('one'), 'mouseover', simpleOver);LIB_removeEventListener(document.getElementById('one'), 'mouseout', simpleOut);return false;">here</a> to remove the mouseover and mouseout listeners.</li>
+          <li> Click <a href="#" onclick="evento.removeEventListener(document.getElementById('one'), 'mouseover', simpleOver);evento.removeEventListener(document.getElementById('one'), 'mouseout', simpleOut);return false;">here</a> to remove the mouseover and mouseout listeners.</li>
           <li>Mouse over and out of the grey box and see the background stay grey.</li>
       </ol>
 
@@ -75,8 +79,8 @@
           function simpleOut(e) {
               this.style.background = "#444";
           }
-          LIB_addEventListener(document.getElementById('one'), 'mouseover', simpleOver);
-          LIB_addEventListener(document.getElementById('one'), 'mouseout', simpleOut);
+          evento.addEventListener(document.getElementById('one'), 'mouseover', simpleOver);
+          evento.addEventListener(document.getElementById('one'), 'mouseout', simpleOut);
       </script>
 
     </div>
@@ -89,7 +93,7 @@
       <ol>
           <li>Mouse over the grey box and see the background become blue.</li>
           <li>Mouse out of the blue box and see the background become grey again.</li>
-          <li> Click <a href="#" onclick="LIB_removeEventListener(document.getElementById('two'), 'mouseover', simpleOverAndOutObj.handlerOver, simpleOverAndOutObj);LIB_removeEventListener(document.getElementById('two'), 'mouseout', simpleOverAndOutObj.handlerOut, simpleOverAndOutObj);return false;">here</a> to remove the mouseover and mouseout listeners.</li>
+          <li> Click <a href="#" onclick="evento.removeEventListener(document.getElementById('two'), 'mouseover', simpleOverAndOutObj.handlerOver, simpleOverAndOutObj);evento.removeEventListener(document.getElementById('two'), 'mouseout', simpleOverAndOutObj.handlerOut, simpleOverAndOutObj);return false;">here</a> to remove the mouseover and mouseout listeners.</li>
           <li>Mouse over and out of the grey box and see the background stay grey.</li>
       </ol>
 
@@ -105,8 +109,8 @@
                   this.el.style.background = '#444';
               }
           };
-          LIB_addEventListener(document.getElementById('two'), 'mouseover', simpleOverAndOutObj.handlerOver, simpleOverAndOutObj);
-          LIB_addEventListener(document.getElementById('two'), 'mouseout', simpleOverAndOutObj.handlerOut, simpleOverAndOutObj);
+          evento.addEventListener(document.getElementById('two'), 'mouseover', simpleOverAndOutObj.handlerOver, simpleOverAndOutObj);
+          evento.addEventListener(document.getElementById('two'), 'mouseout', simpleOverAndOutObj.handlerOut, simpleOverAndOutObj);
       </script>
 
     </div>
@@ -125,7 +129,7 @@
             function passedHandler(evt) {
                 alert(evt.type);
             }
-            LIB_addEventListener(document.getElementById('passed'), 'click', passedHandler);
+            evento.addEventListener(document.getElementById('passed'), 'click', passedHandler);
         </script>
     </div>
 
@@ -134,7 +138,7 @@
 
         <h2>Listener Object with auxArg method name</h2>
 
-        <p>Mouseover and mouseout to see the colour change. Click <a href="#remove" onclick="LIB_removeEventListener(document.getElementById('listenerObj1'), 'mouseover', listenerObj1, 'handleMouseover');LIB_removeEventListener(document.getElementById('listenerObj1'), 'mouseout' , listenerObj1, 'handleMouseout' );return false;">remove</a> to remove the listeners.</p>
+        <p>Mouseover and mouseout to see the colour change. Click <a href="#remove" onclick="evento.removeEventListener(document.getElementById('listenerObj1'), 'mouseover', listenerObj1, 'handleMouseover');evento.removeEventListener(document.getElementById('listenerObj1'), 'mouseout' , listenerObj1, 'handleMouseout' );return false;">remove</a> to remove the listeners.</p>
 
         <div style="margin-left:auto;margin-right:auto;">
             <div id="listenerObj1" style="width:100px;height:100px;background:#444;">
@@ -153,8 +157,8 @@
                 }
             };
 
-            LIB_addEventListener(document.getElementById('listenerObj1' ), 'mouseover', listenerObj1, 'handleMouseover');
-            LIB_addEventListener(document.getElementById('listenerObj1' ), 'mouseout' , listenerObj1, 'handleMouseout' );
+            evento.addEventListener(document.getElementById('listenerObj1' ), 'mouseover', listenerObj1, 'handleMouseover');
+            evento.addEventListener(document.getElementById('listenerObj1' ), 'mouseout' , listenerObj1, 'handleMouseout' );
         </script>
     </div>
 
@@ -163,7 +167,7 @@
 
         <h2>Listener Object with handleEvent method</h2>
 
-        <p>Mouseover and mouseout to see the colour change. Click <a href="#remove" onclick="LIB_removeEventListener(document.getElementById('listenerObj2'), 'mouseover', listenerObj2a);LIB_removeEventListener(document.getElementById('listenerObj2'), 'mouseout' , listenerObj2b);return false;">remove</a> to remove the listeners.</p>
+        <p>Mouseover and mouseout to see the colour change. Click <a href="#remove" onclick="evento.removeEventListener(document.getElementById('listenerObj2'), 'mouseover', listenerObj2a);evento.removeEventListener(document.getElementById('listenerObj2'), 'mouseout' , listenerObj2b);return false;">remove</a> to remove the listeners.</p>
 
         <div style="margin-left:auto;margin-right:auto;">
             <div id="listenerObj2" style="width:100px;height:100px;background:#444;">
@@ -186,8 +190,8 @@
                 }
             };
 
-            LIB_addEventListener(document.getElementById('listenerObj2' ), 'mouseover', listenerObj2a);
-            LIB_addEventListener(document.getElementById('listenerObj2' ), 'mouseout' , listenerObj2b);
+            evento.addEventListener(document.getElementById('listenerObj2' ), 'mouseover', listenerObj2a);
+            evento.addEventListener(document.getElementById('listenerObj2' ), 'mouseout' , listenerObj2b);
         </script>
     </div>
 
@@ -196,7 +200,7 @@
 
         <h2>Purge</h2>
 
-        <p>Mouseover and mouseout to see the colour change. Click <a href="#remove" onclick="LIB_purgeEventListeners(purgeObj);return false;">remove</a> to remove the listeners.</p>
+        <p>Mouseover and mouseout to see the colour change. Click <a href="#remove" onclick="evento.purgeEventListeners(purgeObj);return false;">remove</a> to remove the listeners.</p>
 
         <div id="purge" style="width:300px;height:100px;background:#444;position:relative;margin-left:auto;margin-right:auto;">
             <div id="purge2" style="width:100px;height:50px;background:#555;top:25px;right:100px;position:absolute;">
@@ -223,10 +227,10 @@
                 }
             };
 
-            LIB_addEventListener(document.getElementById('purge' ), 'mouseover', purgeObj, 'simple');
-            LIB_addEventListener(document.getElementById('purge' ), 'mouseout' , purgeObj, 'simple2');
-            LIB_addEventListener(document.getElementById('purge2'), 'mouseover', purgeObj, 'simple3');
-            LIB_addEventListener(document.getElementById('purge2'), 'mouseout' , purgeObj, 'simple4');
+            evento.addEventListener(document.getElementById('purge' ), 'mouseover', purgeObj, 'simple');
+            evento.addEventListener(document.getElementById('purge' ), 'mouseout' , purgeObj, 'simple2');
+            evento.addEventListener(document.getElementById('purge2'), 'mouseover', purgeObj, 'simple3');
+            evento.addEventListener(document.getElementById('purge2'), 'mouseout' , purgeObj, 'simple4');
         </script>
     </div>
 

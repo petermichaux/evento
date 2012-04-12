@@ -26,7 +26,7 @@
 
 /**
 
-@property LIB_addEventListener
+@property evento.addEventListener
 
 @parameter element {EventTarget} The object you'd like to observe.
 
@@ -50,16 +50,16 @@ the "this" object.
 One listener (or type/listener/auxArg pair to be more precise) can be added
 only once.
 
-LIB_addEventListener(document.body, 'click', {handleEvent:function(){}});
-LIB_addEventListener(document.body, 'click', {handleClick:function(){}}, 'handleClick');
-LIB_addEventListener(document.body, 'click', function(){});
-LIB_addEventListener(document.body, 'click', this.handleClick, this);
+evento.addEventListener(document.body, 'click', {handleEvent:function(){}});
+evento.addEventListener(document.body, 'click', {handleClick:function(){}}, 'handleClick');
+evento.addEventListener(document.body, 'click', function(){});
+evento.addEventListener(document.body, 'click', this.handleClick, this);
 
 */
 
 /**
 
-@property LIB_removeEventListener
+@property evento.removeEventListener
 
 @parameter element {EventTarget} The object you'd like to stop observing.
 
@@ -75,24 +75,24 @@ Removes added listener matching the element/type/listener/auxArg combination exa
 If this combination is not found there are no errors.
 
 var o = {handleEvent:function(){}, handleClick:function(){}};
-LIB_removeEventListener(document.body, 'click', o);
-LIB_removeEventListener(document.body, 'click', o, 'handleClick');
-LIB_removeEventListener(document.body, 'click', fn);
-LIB_removeEventListener(document.body, 'click', this.handleClick, this);
+evento.removeEventListener(document.body, 'click', o);
+evento.removeEventListener(document.body, 'click', o, 'handleClick');
+evento.removeEventListener(document.body, 'click', fn);
+evento.removeEventListener(document.body, 'click', this.handleClick, this);
 
 */
 
 /**
 
-@property LIB_purgeEventListeners
+@property evento.purgeEventListeners
 
 @parameter listener {EventListener} The listener object that should stop listening.
 
 @description
 
-Removes all registrations of the listener added through LIB_addEventListener.
+Removes all registrations of the listener added through evento.addEventListener.
 This purging should be done before your application code looses its last reference
-to listener. (This can also be done with more work using LIB_removeEventListener for
+to listener. (This can also be done with more work using evento.removeEventListener for
 each registeration.) If the listeners are not removed or purged, the listener
 will continue to observe the EventTarget and cannot be garbage collected. In an
 MVC application this can lead to "zombie views" if the model data cannot be
@@ -111,8 +111,8 @@ var APP_BoxView = function(model, controller) {
     // implementing the EventTarget interface using listener objects
     // and specifying method name using the same subscription interface.
     //
-    LIB_addEventListener(this.rootEl, 'click', this, 'handleClick');
-    LIB_addEventListener(this.model, 'change', this, 'handleModelChange');
+    evento.addEventListener(this.rootEl, 'click', this, 'handleClick');
+    evento.addEventListener(this.model, 'change', this, 'handleModelChange');
 };
 
 APP_BoxView.prototype.handleClick = function() {
@@ -129,14 +129,10 @@ APP_BoxView.prototype.destroy = function() {
     // to DOM nodes, model objects, or anything else implementing
     // the EventTarget interface in one fell swoop.
     //
-    LIB_purgeEventListeners(this);
+    evento.purgeEventListeners(this);
 };
 
 */
-
-var LIB_addEventListener;
-var LIB_removeEventListener;
-var LIB_purgeEventListeners;
 
 (function() {
 
@@ -184,19 +180,19 @@ var LIB_purgeEventListeners;
         return -1;
     }
 
-    LIB_addEventListener = function(element, type, listener, /*optional*/ auxArg) {
+    evento.addEventListener = function(element, type, listener, /*optional*/ auxArg) {
         // Want to call createListener with the same number of arguments
         // that were passed to this function. Using apply preserves
         // the number of arguments.
         var o = createListener.apply(null, arguments);
-        if (listener._LIB_listeners) {
-            if (indexOfListener(listener._LIB_listeners, o) >= 0) {
+        if (listener._evento_listeners) {
+            if (indexOfListener(listener._evento_listeners, o) >= 0) {
                 // do not add the same listener twice
                 return;
             }            
         }
         else {
-            listener._LIB_listeners = [];
+            listener._evento_listeners = [];
         }
         if (typeof element.addEventListener === 'function') {
             o.element.addEventListener(o.type, o.wrappedHandler, false); 
@@ -206,16 +202,16 @@ var LIB_purgeEventListeners;
             o.element.attachEvent('on'+o.type, o.wrappedHandler);
         }
         else {
-            throw new Error('LIB_addEventListener: Supported EventTarget interface not found.');
+            throw new Error('evento.addEventListener: Supported EventTarget interface not found.');
         }
-        listener._LIB_listeners.push(o);
+        listener._evento_listeners.push(o);
     };
 
-    LIB_removeEventListener = function(element, type, listener, /*optional*/ auxArg) {
-        if (listener._LIB_listeners) {
-            var i = indexOfListener(listener._LIB_listeners, createListener.apply(null, arguments));
+    var remove = evento.removeEventListener = function(element, type, listener, /*optional*/ auxArg) {
+        if (listener._evento_listeners) {
+            var i = indexOfListener(listener._evento_listeners, createListener.apply(null, arguments));
             if (i >= 0) {
-                var o = listener._LIB_listeners[i];
+                var o = listener._evento_listeners[i];
                 if (typeof o.element.removeEventListener === 'function') {
                     o.element.removeEventListener(o.type, o.wrappedHandler, false);
                 } 
@@ -224,23 +220,23 @@ var LIB_purgeEventListeners;
                     o.element.detachEvent('on'+o.type, o.wrappedHandler);
                 } 
                 else {
-                    throw new Error('LIB_removeEventListener: Supported EventTarget interface not found.');
+                    throw new Error('evento.removeEventListener: Supported EventTarget interface not found.');
                 } 
-                listener._LIB_listeners.splice(i, 1);
+                listener._evento_listeners.splice(i, 1);
             }
         }
     };
 
-    LIB_purgeEventListeners = function(lstnr) {
-        if (lstnr._LIB_listeners) {
-            var listeners = lstnr._LIB_listeners.slice(0);
+    evento.purgeEventListeners = function(lstnr) {
+        if (lstnr._evento_listeners) {
+            var listeners = lstnr._evento_listeners.slice(0);
             for (var i = 0, ilen = listeners.length; i < ilen; i++) {
                 var listener = listeners[i];
                 if (listener.hasOwnProperty('auxArg')) {
-                    LIB_removeEventListener(listener.element, listener.type, listener.listener, listener.auxArg);
+                    remove(listener.element, listener.type, listener.listener, listener.auxArg);
                 }
                 else {
-                    LIB_removeEventListener(listener.element, listener.type, listener.listener);
+                    remove(listener.element, listener.type, listener.listener);
                 }
             }
         }
