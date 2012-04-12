@@ -97,6 +97,39 @@ as this library will hold references to the listener, the event targets with whi
 it is registerd, and auxArg (if it was used) and all objects referenced
 by those objects through property or closure references.
 
+The primary goal of this purge function is to easy cleanup in MVC View destroy 
+methods. For example,
+
+var APP_BoxView = function(model, controller) {
+    this.model = model || new BoxModel();
+    this.controller = controller || new BoxController();
+    this.rootEl = document.createElement('div');
+
+    // subscribe to DOM node(s) and model object(s) or anything else
+    // implementing the EventTarget interface using listener objects
+    // and specifying method name using the same subscription interface.
+    //
+    LIB_addEventListener(this.rootEl, 'click', this, 'handleClick');
+    LIB_addEventListener(this.model, 'change', this, 'handleModelChange');
+};
+
+APP_BoxView.prototype.handleClick = function() {
+    // might subscribe/unsubscribe to more DOM nodes or models here
+};
+
+APP_BoxView.prototype.handleModelChange = function() {
+    // might subscribe/unsubscribe to more DOM nodes or models here
+};
+
+APP_BoxView.prototype.destroy = function() {
+
+    // Programmer doesn't need to remember anything. Purge all subscriptions
+    // to DOM nodes, model objects, or anything else implementing
+    // the EventTarget interface in one fell swoop.
+    //
+    LIB_purgeEventListeners(this); // (Bad library function name. Suggestions?)
+};
+
 */
 
 var LIB_addEventListener;
