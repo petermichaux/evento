@@ -88,7 +88,7 @@ evento.removeEventListener(document.body, 'click', this.handleClick, this);
 
 /**
 
-@property evento.purgeEventListeners
+@property evento.purgeEventListener
 
 @parameter listener {EventListener} The listener object that should stop listening.
 
@@ -133,7 +133,7 @@ APP_BoxView.prototype.destroy = function() {
     // to DOM nodes, model objects, or anything else implementing
     // the EventTarget interface in one fell swoop.
     //
-    evento.purgeEventListeners(this);
+    evento.purgeEventListener(this);
 };
 
 */
@@ -236,7 +236,7 @@ APP_BoxView.prototype.destroy = function() {
         }
     };
 
-    evento.purgeEventListeners = function(lstnr) {
+    evento.purgeEventListener = function(lstnr) {
         if (lstnr._evento_listeners) {
             var listeners = lstnr._evento_listeners.slice(0);
             for (var i = 0, ilen = listeners.length; i < ilen; i++) {
