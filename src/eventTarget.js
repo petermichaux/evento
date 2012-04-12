@@ -101,8 +101,8 @@ The primary goal of this purge function is to easy cleanup in MVC View destroy
 methods. For example,
 
 var APP_BoxView = function(model, controller) {
-    this.model = model || new BoxModel();
-    this.controller = controller || new BoxController();
+    this.model = model || new APP_BoxModel();
+    this.controller = controller || new APP_BoxController();
     this.rootEl = document.createElement('div');
 
     // subscribe to DOM node(s) and model object(s) or anything else
