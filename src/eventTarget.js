@@ -40,7 +40,9 @@
 
 If the listener is an object then when a matching event type is dispatched on
 the event target, the listener object's handleEvent method will be called.
-Using the auxArg you can specify the name of the method to be called.
+By supplying a string value for auxArg you can specify the name of
+the method to be called. You can also supply a function object for auxArg for
+early binding.
 
 If the listener is a function then when a matching event type is dispatched on
 the event target, the listener function is called with event target object set as
@@ -52,6 +54,7 @@ only once.
 
 evento.addEventListener(document.body, 'click', {handleEvent:function(){}});
 evento.addEventListener(document.body, 'click', {handleClick:function(){}}, 'handleClick');
+evento.addEventListener(document.body, 'click', {}, function(){});
 evento.addEventListener(document.body, 'click', function(){});
 evento.addEventListener(document.body, 'click', this.handleClick, this);
 
@@ -77,6 +80,7 @@ If this combination is not found there are no errors.
 var o = {handleEvent:function(){}, handleClick:function(){}};
 evento.removeEventListener(document.body, 'click', o);
 evento.removeEventListener(document.body, 'click', o, 'handleClick');
+evento.removeEventListener(document.body, 'click', o, fn);
 evento.removeEventListener(document.body, 'click', fn);
 evento.removeEventListener(document.body, 'click', this.handleClick, this);
 
@@ -149,6 +153,11 @@ APP_BoxView.prototype.destroy = function() {
             var thisObj = arguments.length > 3 ? auxArg : element;
             o.wrappedHandler = function(evt) {
                 listener.call(thisObj, evt);
+            };
+        }
+        else if (typeof auxArg === 'function') {
+            o.wrappedHandler = function(evt) {
+                auxArg.call(listener, evt);
             };
         }
         else {

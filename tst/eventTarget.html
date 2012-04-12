@@ -196,6 +196,35 @@
     </div>
 
 
+    <div id="listenerObj3_ex" class="example">
+
+        <h2>Listener Object with auxArg function</h2>
+
+        <p>Mouseover and mouseout to see the colour change. Click <a href="#remove" onclick="evento.removeEventListener(document.getElementById('listenerObj3el'), 'mouseover', listenerObj3, 'handleMouseover');evento.removeEventListener(document.getElementById('listenerObj3el'), 'mouseout' , listenerObj3, 'handleMouseout' );return false;">remove</a> to remove the listeners.</p>
+
+        <div style="margin-left:auto;margin-right:auto;">
+            <div id="listenerObj3el" style="width:100px;height:100px;background:#444;">
+            </div>
+        </div>
+
+        <script type="text/javascript">
+
+            var listenerObj3 = {
+                el3: document.getElementById('listenerObj3el'),
+                handleMouseover: function() {
+                    this.el3.style.background = '#F00';
+                },
+                handleMouseout: function() {
+                    this.el3.style.background = '#444';
+                }
+            };
+
+            evento.addEventListener(document.getElementById('listenerObj3el'), 'mouseover', listenerObj3, 'handleMouseover');
+            evento.addEventListener(document.getElementById('listenerObj3el'), 'mouseout' , listenerObj3, 'handleMouseout' );
+        </script>
+    </div>
+
+
     <div id="purge_ex" class="example">
 
         <h2>Purge</h2>
