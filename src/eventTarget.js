@@ -86,16 +86,16 @@ LIB_removeEventListener(document.body, 'click', this.handleClick, this);
 
 @property LIB_purgeEventListeners
 
-@parameter element {EventTarget} The DOM element you'd like to purge.
+@parameter listener {EventListener} The listener object that should stop listening.
 
 @description
 
-Removes all event listeners added to the element and all its descendent elements
-through LIB_addEventListener. This purging should be done before your application
-code looses its last reference to the element. Otherwise memory will leak
-as this library will hold references to the element, the listener, and
-auxArg (if it was used) and all objects referenced by those objects through
-property or closure references.
+Removes all registrations of the listener added through LIB_addEventListener.
+This purging should be done before your application
+code looses its last reference to listener. Otherwise memory will leak
+as this library will hold references to the listener, the event targets with which
+it is registerd, and auxArg (if it was used) and all objects referenced
+by those objects through property or closure references.
 
 */
 
