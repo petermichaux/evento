@@ -193,21 +193,19 @@ var LIB_purgeEventListeners;
 
     if (typeof LIB_removeEventListener === 'function') {
 
-        // An inelegant and inefficient purge algorithm.
-
-        var getElementListeners = function(element) {
+        var getListeners = function(lstnr) {
             var result = [];
             for (var i = 0, ilen = listeners.length; i < ilen; i++) {
                 var listener = listeners[i];
-                if (listener.element === element) {
+                if (listener.listener === lstnr) {
                     result.push(listener);
                 }
             }
             return result;
         };
 
-        var purge = LIB_purgeEventListeners = function(element) {
-            var listeners = getElementListeners(element);
+        var purge = LIB_purgeEventListeners = function(lstnr) {
+            var listeners = getListeners(lstnr);
             for (var i = 0, ilen = listeners.length; i < ilen; i++) {
                 var listener = listeners[i];
                 if (listener.hasOwnProperty('auxArg')) {
@@ -216,10 +214,6 @@ var LIB_purgeEventListeners;
                 else {
                     LIB_removeEventListener(listener.element, listener.type, listener.listener);
                 }
-            }
-            // walk down the DOM tree
-            for (var i = 0, ilen = element.childNodes.length; i < ilen; i++) {
-                purge(element.childNodes[i]);
             }
         };
 

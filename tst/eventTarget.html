@@ -196,7 +196,7 @@
 
         <h2>Purge</h2>
 
-        <p>The nested grey boxes have mouseover and mouseout listeners. Click <a href="#" onclick="LIB_purgeEventListeners(document.getElementById('purge'));return false;">purge</a> to remove the all listeners added through evento API.</p>
+        <p>Mouseover and mouseout to see the colour change. Click <a href="#remove" onclick="LIB_purgeEventListeners(purgeObj);return false;">remove</a> to remove the listeners.</p>
 
         <div id="purge" style="width:300px;height:100px;background:#444;position:relative;margin-left:auto;margin-right:auto;">
             <div id="purge2" style="width:100px;height:50px;background:#555;top:25px;right:100px;position:absolute;">
@@ -205,6 +205,7 @@
         </div>
 
         <script type="text/javascript">
+
             var purgeObj = {
                 light: "#0ff",
                 dark: "#444",
@@ -222,10 +223,10 @@
                 }
             };
 
-            LIB_addEventListener(document.getElementById('purge' ), 'mouseover', purgeObj.simple , purgeObj);
-            LIB_addEventListener(document.getElementById('purge' ), 'mouseout' , purgeObj.simple2, purgeObj);
-            LIB_addEventListener(document.getElementById('purge2'), 'mouseover', purgeObj.simple3, purgeObj);
-            LIB_addEventListener(document.getElementById('purge2'), 'mouseout' , purgeObj.simple4, purgeObj);
+            LIB_addEventListener(document.getElementById('purge' ), 'mouseover', purgeObj, 'simple');
+            LIB_addEventListener(document.getElementById('purge' ), 'mouseout' , purgeObj, 'simple2');
+            LIB_addEventListener(document.getElementById('purge2'), 'mouseover', purgeObj, 'simple3');
+            LIB_addEventListener(document.getElementById('purge2'), 'mouseout' , purgeObj, 'simple4');
         </script>
     </div>
 
