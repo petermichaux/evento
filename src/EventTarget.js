@@ -255,6 +255,7 @@ et.dispatchEvent({type:'change', extraData:'abc'});
         evt = create(evt);
         ('target' in evt) || (evt.target = this); // don't change target on bubbling event
         evt.currentTarget = this;
+        evt._propagationStopped = ('bubbles' in evt) ? !evt.bubbles : false;
         evt.stopPropagation = function() {
             evt._propagationStopped = true;
         };

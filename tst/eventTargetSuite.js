@@ -306,6 +306,33 @@
 
             assert.same(false, result0);
             assert.same(true, result1);
+        },
+        
+        "test bubbles event property": function() {
+
+            var child0 = new evento.EventTarget();
+            var child1 = new evento.EventTarget();
+        
+            var result0 = false;
+            var result1 = false;
+        
+            child0.addEventListener('foo', function() {
+                result0 = true;
+            });
+        
+            child1.addEventListener('foo', function(evt) {
+                result1 = true;
+            });
+
+            child1.addParentEventTarget(child0);
+
+            assert.same(false, result0);
+            assert.same(false, result1);
+
+            child1.dispatchEvent({type:'foo', bubbles:false});
+
+            assert.same(false, result0);
+            assert.same(true, result1);
         }
 
     });
