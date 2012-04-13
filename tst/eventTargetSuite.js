@@ -242,39 +242,61 @@
         },
         
         "test remove parent event target": function() {
-            var child0 = new evento.EventTarget();
-            var child1 = new evento.EventTarget();
+            var child = new evento.EventTarget();
+            var parent0 = new evento.EventTarget();
+            var parent1 = new evento.EventTarget();
+            var parent2 = new evento.EventTarget();
         
+            var result = false;
             var result0 = false;
             var result1 = false;
+            var result2 = false;
         
-            child0.addEventListener('foo', function() {
+            child.addEventListener('foo', function() {
+                result = true;
+            });
+
+            parent0.addEventListener('foo', function() {
                 result0 = true;
             });
-        
-            child1.addEventListener('foo', function() {
+
+            parent1.addEventListener('foo', function() {
                 result1 = true;
             });
+        
+            parent2.addEventListener('foo', function() {
+                result2 = true;
+            });
 
-            child1.addParentEventTarget(child0);
+            child.addParentEventTarget(parent0);
+            child.addParentEventTarget(parent1);
+            child.addParentEventTarget(parent2);
 
+            assert.same(false, result);
             assert.same(false, result0);
             assert.same(false, result1);
+            assert.same(false, result2);
 
-            child1.dispatchEvent({type:'foo'});
+            child.dispatchEvent({type:'foo'});
 
+            assert.same(true, result);
             assert.same(true, result0);
             assert.same(true, result1);
+            assert.same(true, result2);
             
+            result = false;
             result0 = false;
             result1 = false;
+            result2 = false;
             
-            child1.removeParentEventTarget(child0);
+            child.removeParentEventTarget(parent1);
             
-            child1.dispatchEvent({type:'foo'});
+            child.dispatchEvent({type:'foo'});
 
-            assert.same(false, result0);
-            assert.same(true, result1);
+            assert.same(true, result);
+            assert.same(true, result0);
+            assert.same(false, result1);
+            assert.same(true, result2);
             
         },
 

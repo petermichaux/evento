@@ -219,10 +219,11 @@ et.removeParentEventTarget(o);
         if (hasOwnProperty(this, '_evento_parents')) {
             var parents = this._evento_parents;
             for (var i = 0, ilen = parents.length; i < ilen; i++) {
-                var p = parents[i];
-                parents.splice(i, 1);
-                // no need to continue as parent can be added only once
-                return;
+                if (parents[i] === parent) {
+                    parents.splice(i, 1);
+                    // no need to continue as parent can be added only once
+                    return;
+                }
             }
         }
     };
