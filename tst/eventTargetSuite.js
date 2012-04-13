@@ -36,10 +36,6 @@
     var listener4 = function(data) {
         feed4.push(data.tweet);
     };
-    
-    var listenerAll = function(data) {
-        feedAll.push(data.tweet);
-    };
 
     var twitter = new evento.EventTarget();
 
@@ -67,7 +63,6 @@
             // add some listeners
             evento.EventTarget.prototype.addEventListener('foo', listener1);
             evento.EventTarget.prototype.addEventListener('bar', listener1b);
-            evento.EventTarget.prototype.addAllEventListener(listenerAll);
             twitter.addEventListener('foo', listener2);
             tweetsRUs.addEventListener('foo', listener3);
             APP_Twitter.prototype.addEventListener('foo', listener4);
@@ -109,7 +104,6 @@
             // remove the listeners
             evento.EventTarget.prototype.removeEventListener('foo', listener1);
             evento.EventTarget.prototype.removeEventListener('bar', listener1b);
-            evento.EventTarget.prototype.removeAllEventListener(listenerAll);
             twitter.removeEventListener('foo', listener2);
             tweetsRUs.removeEventListener('foo', listener3);
             APP_Twitter.prototype.removeEventListener('foo', listener4);
@@ -144,10 +138,6 @@
             assert.arrayEquals([tweet2], feed2);
             assert.arrayEquals([tweet3], feed3);
             assert.arrayEquals([tweet4, tweet5], feed4);
-        },
-        
-        "test all listeners": function() {
-            assert.arrayEquals([tweet1, tweet1b], feedAll);
         },
         
         "test methodName defaults to \"handleEvent\"": function() {
@@ -216,43 +206,14 @@
             assert.same(2, f.count, 'f should only have been called twice');
         },
         
-        "test implements": function() {
-            assert.same(false, evento.implementsEventTarget({}), 'basic objects should not implement the subject interface.');
-            assert.same(true, evento.implementsEventTarget(new evento.EventTarget()), 'subject objects should implement the subject interface.');
-        },
-        
-        "test that target doesn't change and that currentTarget does change when bubbling": function() {
-        
-            var child0 = new evento.EventTarget();
-            var child1 = new evento.EventTarget();
-        
-            var result0;
-            var result1;
-        
-            child0.addEventListener('foo', function(ev) {
-                result0 = ev;
-                // bubble the event
-                child1.dispatchEvent(ev);
-            });
-        
-            child1.addEventListener('foo', function(ev) {
-                result1 = ev;
-            });
-        
-            child0.dispatchEvent({type:'foo'});
-        
-            assert.same(result0.target, child0, 'assertion 1: The target should be child0.');
-            assert.same(result0.currentTarget, child0, 'assertion 2: The currentTarget should be child0.');
-            assert.same(result1.target, child0, 'assertion 3: The target should be child0.');
-            assert.same(result1.currentTarget, child1, 'assertion 4: The currentTarget should be child1.');
-        
-        },
-        
-        "test that bubbling while handling an event does not alter the original event": function() {
+        "test that bubbling while handling an event does not alter the original event and currentTarget changes": function() {
         
             var child0 = new evento.EventTarget();
             var child1 = new evento.EventTarget();
             var child2 = new evento.EventTarget();
+        
+            child2.addParentEventTarget(child1);
+            child1.addParentEventTarget(child0);
         
             var result0;
             var result1;
@@ -262,26 +223,91 @@
                 result0 = ev;
             });
         
-            child0.addEventListener('foo', function(ev) {
-                child1.dispatchEvent(ev);
+            child1.addEventListener('foo', function(ev) {
                 result1 = ev;
             });
         
-            child1.addEventListener('foo', function(ev) {
+            child2.addEventListener('foo', function(ev) {
                 result2 = ev;
             });
         
-            child0.dispatchEvent({type:'foo'});
+            child2.dispatchEvent({type:'foo'});
         
-            assert.same(result0.target, child0, 'assertion 1: The target should be child0.');
-            assert.same(result0.currentTarget, child0, 'assertion 2: The currentTarget should be child0.');
-            assert.same(result1.target, child0, 'assertion 3: The target should be child0.');
-            assert.same(result1.currentTarget, child0, 'assertion 4: The currentTarget should be child0.');
-            assert.same(result2.target, child0, 'assertion 5: The target should be child0.');
-            assert.same(result2.currentTarget, child1, 'assertion 6: The currentTarget should be child1.');
+            assert.same(child2, result0.target, 'assertion 1: The target should be child0.');
+            assert.same(child0, result0.currentTarget, 'assertion 2: The currentTarget should be child0.');
+            assert.same(child2, result1.target, 'assertion 3: The target should be child1.');
+            assert.same(child1, result1.currentTarget, 'assertion 4: The currentTarget should be child0.');
+            assert.same(child2, result2.target, 'assertion 5: The target should be child2.');
+            assert.same(child2, result2.currentTarget, 'assertion 6: The currentTarget should be child1.');
+        },
         
+        "test remove parent event target": function() {
+            var child0 = new evento.EventTarget();
+            var child1 = new evento.EventTarget();
+        
+            var result0 = false;
+            var result1 = false;
+        
+            child0.addEventListener('foo', function() {
+                result0 = true;
+            });
+        
+            child1.addEventListener('foo', function() {
+                result1 = true;
+            });
+
+            child1.addParentEventTarget(child0);
+
+            assert.same(false, result0);
+            assert.same(false, result1);
+
+            child1.dispatchEvent({type:'foo'});
+
+            assert.same(true, result0);
+            assert.same(true, result1);
+            
+            result0 = false;
+            result1 = false;
+            
+            child1.removeParentEventTarget(child0);
+            
+            child1.dispatchEvent({type:'foo'});
+
+            assert.same(false, result0);
+            assert.same(true, result1);
+            
+        },
+
+        "test stopPropagation": function() {
+
+            var child0 = new evento.EventTarget();
+            var child1 = new evento.EventTarget();
+
+            child1.addParentEventTarget(child0);
+        
+            var result0 = false;
+            var result1 = false;
+        
+            child0.addEventListener('foo', function() {
+                result0 = true;
+            });
+        
+            child1.addEventListener('foo', function(evt) {
+                result1 = true;
+                evt.stopPropagation();
+            });
+
+            child1.addParentEventTarget(child0);
+
+            assert.same(false, result0);
+            assert.same(false, result1);
+
+            child1.dispatchEvent({type:'foo'});
+
+            assert.same(false, result0);
+            assert.same(true, result1);
         }
-    
+
     });
 
 }());
