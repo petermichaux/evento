@@ -191,13 +191,14 @@ et.addParentEventTarget(o);
             throw new TypeError('evento.EventTarget.prototype.addParentEventTarget: Parents must have dispatchEvent method.');
         }
         hasOwnProperty(this, '_evento_parents') || (this._evento_parents = []);
-        for (var i=0, ilen=this._evento_parents.length; i<ilen; i++) {
-            if (this._evento_parents[i] === parent) {
+        var parents = this._evento_parents;
+        for (var i = 0, ilen = parents.length; i < ilen; i++) {
+            if (parents[i] === parent) {
                 // can only add a particular parent once
                 return;
             }
         }
-        this._evento_parents.push(parent);
+        parents.push(parent);
     };
 
 /**
