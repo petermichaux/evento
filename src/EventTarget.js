@@ -53,31 +53,6 @@ evento.EventTarget = function() {};
         };
     }());
 
-    function dispatchEvent(listeners, target, evt) {
-        // Copy the list of listeners in case one of the
-        // listeners modifies the list while we are
-        // iterating over the list.
-        //
-        // Without making a copy, one listener removing
-        // an already-called listener would result in skipping
-        // a not-yet-called listener. One listener removing 
-        // a not-yet-called listener would result in skipping that
-        // not-yet-called listner. The worst case scenario 
-        // is a listener adding itself again which would
-        // create an infinite loop.
-        //
-        listeners = listeners.slice(0);
-        for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-            var listener = listeners[i];
-            if (typeof listener === 'function') {
-                listener.call(target, evt);
-            }
-            else {
-                listener.handleEvent(evt);
-            }
-        }
-    }
-
 /**
 
 @property evento.EventTarget.prototype.addEventListener
@@ -242,7 +217,28 @@ et.dispatchEvent({type:'change', extraData:'abc'});
         };
         if (hasOwnProperty(this, '_evento_listeners') &&
             hasOwnProperty(this._evento_listeners, evt.type)) {
-            dispatchEvent(this._evento_listeners[evt.type], this, evt);
+            // Copy the list of listeners in case one of the
+            // listeners modifies the list while we are
+            // iterating over the list.
+            //
+            // Without making a copy, one listener removing
+            // an already-called listener would result in skipping
+            // a not-yet-called listener. One listener removing 
+            // a not-yet-called listener would result in skipping that
+            // not-yet-called listner. The worst case scenario 
+            // is a listener adding itself again which would
+            // create an infinite loop.
+            //
+            var listeners = this._evento_listeners[evt.type].slice(0);
+            for (var i = 0, ilen = listeners.length; i < ilen; i++) {
+                var listener = listeners[i];
+                if (typeof listener === 'function') {
+                    listener.call(this, evt);
+                }
+                else {
+                    listener.handleEvent(evt);
+                }
+            }
         }
         if (hasOwnProperty(this, '_evento_parents') &&
             !evt._propagationStopped) {
