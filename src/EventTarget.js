@@ -53,16 +53,6 @@ evento.EventTarget = function() {};
         };
     }());
 
-    function removeEventListener(listeners, listener) {
-        // Loop backwards through the array so adjacent references
-        // to "listener" are all removed.
-        for (var i = listeners.length; i--; ) {
-            if (listeners[i] === listener) {
-                listeners.splice(i, 1);
-            }
-        }
-    }
-
     function dispatchEvent(listeners, target, evt) {
         // Copy the list of listeners in case one of the
         // listeners modifies the list while we are
@@ -145,7 +135,15 @@ et.removeEventListener('change', fn);
     evento.EventTarget.prototype.removeEventListener = function(type, listener) {
         if (hasOwnProperty(this, '_evento_listeners') &&
             hasOwnProperty(this._evento_listeners, type)) {
-            removeEventListener(this._evento_listeners[type], listener);
+            var listeners = this._evento_listeners[type];
+            for (var i = 0, ilen = listeners.length; i < ilen; i++) {
+                if (listeners[i] === listener) {
+                    listeners.splice(i, 1);
+                    // no need to continue since a particular listener
+                    // can only be added once
+                    return;
+                }
+            }
         }
     };
 
