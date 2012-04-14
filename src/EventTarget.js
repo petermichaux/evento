@@ -53,33 +53,27 @@ evento.EventTarget = function() {};
         };
     }());
 
-    function addEventListener(eventTarget, listeners, o) {
+    function addEventListener(eventTarget, listeners, listener) {
         for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-            if (listeners[i].listener === o.listener) {
+            if (listeners[i] === listener) {
                 // can only add a listener once
                 return;
             }
         }
-        if (typeof o.listener === 'function') {
-            o.thisObj = eventTarget;
-        }
-        else {
-            o.methodName = 'handleEvent';
-        }
-        listeners.push(o);
+        listeners.push(listener);
     }
 
-    function removeEventListener(listeners, o) {
+    function removeEventListener(listeners, listener) {
         // Loop backwards through the array so adjacent references
         // to "listener" are all removed.
         for (var i = listeners.length; i--; ) {
-            if (listeners[i].listener === o.listener) {
+            if (listeners[i] === listener) {
                 listeners.splice(i, 1);
             }
         }
     }
 
-    function dispatchEvent(listeners, evt) {
+    function dispatchEvent(listeners, target, evt) {
         // Copy the list of listeners in case one of the
         // listeners modifies the list while we are
         // iterating over the list.
@@ -94,12 +88,12 @@ evento.EventTarget = function() {};
         //
         listeners = listeners.slice(0);
         for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-            var o = listeners[i];
-            if (typeof o.listener === 'function') {
-                o.listener.call(o.thisObj, evt);
+            var listener = listeners[i];
+            if (typeof listener === 'function') {
+                listener.call(target, evt);
             }
             else {
-                o.listener[o.methodName](evt);
+                listener.handleEvent(evt);
             }
         }
     }
@@ -130,7 +124,7 @@ et.addEventListener('change', function(){});
     evento.EventTarget.prototype.addEventListener = function(type, listener) {
         hasOwnProperty(this, '_evento_listeners') || (this._evento_listeners = {});
         hasOwnProperty(this._evento_listeners, type) || (this._evento_listeners[type] = []);
-        addEventListener(this, this._evento_listeners[type], {listener: listener});
+        addEventListener(this, this._evento_listeners[type], listener);
     };
 
 /**
@@ -154,7 +148,7 @@ et.removeEventListener('change', fn);
     evento.EventTarget.prototype.removeEventListener = function(type, listener) {
         if (hasOwnProperty(this, '_evento_listeners') &&
             hasOwnProperty(this._evento_listeners, type)) {
-            removeEventListener(this._evento_listeners[type], {listener: listener});
+            removeEventListener(this._evento_listeners[type], listener);
         }
     };
 
@@ -253,7 +247,7 @@ et.dispatchEvent({type:'change', extraData:'abc'});
         };
         if (hasOwnProperty(this, '_evento_listeners') &&
             hasOwnProperty(this._evento_listeners, evt.type)) {
-            dispatchEvent(this._evento_listeners[evt.type], evt);
+            dispatchEvent(this._evento_listeners[evt.type], this, evt);
         }
         if (hasOwnProperty(this, '_evento_parents') &&
             !evt._propagationStopped) {
