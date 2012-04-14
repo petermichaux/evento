@@ -245,7 +245,7 @@ et.dispatchEvent({type:'change', extraData:'abc'});
             for (var i=0, ilen=this._evento_parents.length; i<ilen; i++) {
                 this._evento_parents[i].dispatchEvent(evt);
             }
-        }        
+        }
     };
 
 }());
