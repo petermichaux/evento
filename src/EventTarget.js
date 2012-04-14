@@ -248,8 +248,6 @@ et.dispatchEvent({type:'change', extraData:'abc'});
         }
     };
 
-}());
-
 /**
 
 @property evento.mixinEventTarget
@@ -266,13 +264,16 @@ o.addEventListener('change', function(){alert('change');});
 o.dispatchEvent({type:'change'});
 
 */
-evento.mixinEventTarget = function(obj) {
-    for (var p in evento.EventTarget.prototype) {
-        if (Object.prototype.hasOwnProperty.call(evento.EventTarget.prototype, p) &&
-            // Don't want to copy evento.EventTarget.prototype._evento_listeners object. Want the obj object
-            // to have its own listeners and not share listeners with evento.EventTarget.prototype.
-            (typeof evento.EventTarget.prototype[p] === 'function')) {
-            obj[p] = evento.EventTarget.prototype[p];
-        }
-    }
-};
+    evento.mixinEventTarget = function(obj) {
+        var pt = evento.EventTarget.prototype;
+        for (var p in pt) {
+            if (hasOwnProperty(pt, p) &&
+                // Don't want to copy evento.EventTarget.prototype._evento_listeners object. Want the obj object
+                // to have its own listeners and not share listeners with evento.EventTarget.prototype.
+                (typeof pt[p] === 'function')) {
+                obj[p] = pt[p];
+            }
+        } 
+    };
+
+}());
