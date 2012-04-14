@@ -53,16 +53,6 @@ evento.EventTarget = function() {};
         };
     }());
 
-    function addEventListener(eventTarget, listeners, listener) {
-        for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-            if (listeners[i] === listener) {
-                // can only add a listener once
-                return;
-            }
-        }
-        listeners.push(listener);
-    }
-
     function removeEventListener(listeners, listener) {
         // Loop backwards through the array so adjacent references
         // to "listener" are all removed.
@@ -124,7 +114,14 @@ et.addEventListener('change', function(){});
     evento.EventTarget.prototype.addEventListener = function(type, listener) {
         hasOwnProperty(this, '_evento_listeners') || (this._evento_listeners = {});
         hasOwnProperty(this._evento_listeners, type) || (this._evento_listeners[type] = []);
-        addEventListener(this, this._evento_listeners[type], listener);
+        var listeners = this._evento_listeners[type];
+        for (var i = 0, ilen = listeners.length; i < ilen; i++) {
+            if (listeners[i] === listener) {
+                // can only add a listener once
+                return;
+            }
+        }
+        listeners.push(listener);
     };
 
 /**
