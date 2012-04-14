@@ -53,19 +53,13 @@ evento.EventTarget = function() {};
         };
     }());
 
-    function hasEventListener(listeners, o) {
-        for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-            if (listeners[i].listener === o.listener) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     function addEventListener(eventTarget, listeners, o) {
-        if (hasEventListener(listeners, o)) {
-            return;
-        }
+        for (var i = 0, ilen = listeners.length; i < ilen; i++) { 
+            if (listeners[i].listener === o.listener) { 
+                // can only add a listener once 
+                return; 
+            } 
+        } 
         if (typeof o.listener === 'function') {
             o.thisObj = eventTarget;
         }
