@@ -54,12 +54,12 @@ evento.EventTarget = function() {};
     }());
 
     function addEventListener(eventTarget, listeners, o) {
-        for (var i = 0, ilen = listeners.length; i < ilen; i++) { 
-            if (listeners[i].listener === o.listener) { 
-                // can only add a listener once 
-                return; 
-            } 
-        } 
+        for (var i = 0, ilen = listeners.length; i < ilen; i++) {
+            if (listeners[i].listener === o.listener) {
+                // can only add a listener once
+                return;
+            }
+        }
         if (typeof o.listener === 'function') {
             o.thisObj = eventTarget;
         }
