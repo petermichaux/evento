@@ -53,13 +53,9 @@ evento.EventTarget = function() {};
         };
     }());
 
-    function listenersAreEqual(n, o) {
-        return n.listener === o.listener;
-    }
-
     function hasEventListener(listeners, o) {
         for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-            if (listenersAreEqual(listeners[i], o)) {
+            if (listeners[i].listener === o.listener) {
                 return true;
             }
         }
@@ -83,7 +79,7 @@ evento.EventTarget = function() {};
         // Loop backwards through the array so adjacent references
         // to "listener" are all removed.
         for (var i = listeners.length; i--; ) {
-            if (listenersAreEqual(listeners[i], o)) {
+            if (listeners[i].listener === o.listener) {
                 listeners.splice(i, 1);
             }
         }
