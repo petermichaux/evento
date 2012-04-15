@@ -140,36 +140,36 @@ APP_BoxView.prototype.destroy = function() {
 
 (function() {
 
-    function createListener(element, type, listener, /*optional*/ auxArg) {
-        var o = {
+    function createBundle(element, type, listener, /*optional*/ auxArg) {
+        var bundle = {
             element: element,
             type: type,
             listener: listener
         };
         if (arguments.length > 3) {
-            o.auxArg = auxArg;
+            bundle.auxArg = auxArg;
         }
         if (typeof listener === 'function') {
             var thisObj = arguments.length > 3 ? auxArg : element;
-            o.wrappedHandler = function(evt) {
+            bundle.wrappedHandler = function(evt) {
                 listener.call(thisObj, evt);
             };
         }
         else if (typeof auxArg === 'function') {
-            o.wrappedHandler = function(evt) {
+            bundle.wrappedHandler = function(evt) {
                 auxArg.call(listener, evt);
             };
         }
         else {
             var methodName = arguments.length > 3 ? auxArg : 'handleEvent';
-            o.wrappedHandler = function(evt) {
+            bundle.wrappedHandler = function(evt) {
                 listener[methodName](evt);
             };
         }
-        return o;
+        return bundle;
     }
 
-    function listenersAreEqual(a, b) {
+    function bundlesAreEqual(a, b) {
         return (a.element === b.element) &&
                (a.type === b.type) &&
                (a.listener === b.listener) &&
@@ -180,9 +180,9 @@ APP_BoxView.prototype.destroy = function() {
                  (a.auxArg === b.auxArg)));
     }
 
-    function indexOfListener(listeners, o) {
-        for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-            if (listenersAreEqual(listeners[i], o)) {
+    function indexOfBundle(bundles, bundle) {
+        for (var i = 0, ilen = bundles.length; i < ilen; i++) {
+            if (bundlesAreEqual(bundles[i], bundle)) {
                 return i;
             }
         }
@@ -190,62 +190,62 @@ APP_BoxView.prototype.destroy = function() {
     }
 
     evento.addEventListener = function(element, type, listener, /*optional*/ auxArg) {
-        // Want to call createListener with the same number of arguments
+        // Want to call createBundle with the same number of arguments
         // that were passed to this function. Using apply preserves
         // the number of arguments.
-        var o = createListener.apply(null, arguments);
-        if (listener._evento_listeners) {
-            if (indexOfListener(listener._evento_listeners, o) >= 0) {
+        var bundle = createBundle.apply(null, arguments);
+        if (listener._evento_bundles) {
+            if (indexOfBundle(listener._evento_bundles, bundle) >= 0) {
                 // do not add the same listener twice
                 return;
             }            
         }
         else {
-            listener._evento_listeners = [];
+            listener._evento_bundles = [];
         }
-        if (typeof element.addEventListener === 'function') {
-            o.element.addEventListener(o.type, o.wrappedHandler, false); 
+        if (typeof bundle.element.addEventListener === 'function') {
+            bundle.element.addEventListener(bundle.type, bundle.wrappedHandler, false); 
         }
-        else if ((typeof element.attachEvent === 'object') &&
-                 (element.attachEvent !== null)) {
-            o.element.attachEvent('on'+o.type, o.wrappedHandler);
+        else if ((typeof bundle.element.attachEvent === 'object') &&
+                 (bundle.element.attachEvent !== null)) {
+            bundle.element.attachEvent('on'+bundle.type, bundle.wrappedHandler);
         }
         else {
             throw new Error('evento.addEventListener: Supported EventTarget interface not found.');
         }
-        listener._evento_listeners.push(o);
+        listener._evento_bundles.push(bundle);
     };
 
     var remove = evento.removeEventListener = function(element, type, listener, /*optional*/ auxArg) {
-        if (listener._evento_listeners) {
-            var i = indexOfListener(listener._evento_listeners, createListener.apply(null, arguments));
+        if (listener._evento_bundles) {
+            var i = indexOfBundle(listener._evento_bundles, createBundle.apply(null, arguments));
             if (i >= 0) {
-                var o = listener._evento_listeners[i];
-                if (typeof o.element.removeEventListener === 'function') {
-                    o.element.removeEventListener(o.type, o.wrappedHandler, false);
+                var bundle = listener._evento_bundles[i];
+                if (typeof bundle.element.removeEventListener === 'function') {
+                    bundle.element.removeEventListener(bundle.type, bundle.wrappedHandler, false);
                 } 
-                else if ((typeof element.detachEvent === 'object') &&
-                         (element.detachEvent !== null)) {
-                    o.element.detachEvent('on'+o.type, o.wrappedHandler);
+                else if ((typeof bundle.element.detachEvent === 'object') &&
+                         (bundle.element.detachEvent !== null)) {
+                    bundle.element.detachEvent('on'+bundle.type, bundle.wrappedHandler);
                 } 
                 else {
                     throw new Error('evento.removeEventListener: Supported EventTarget interface not found.');
                 } 
-                listener._evento_listeners.splice(i, 1);
+                listener._evento_bundles.splice(i, 1);
             }
         }
     };
 
-    evento.purgeEventListener = function(lstnr) {
-        if (lstnr._evento_listeners) {
-            var listeners = lstnr._evento_listeners.slice(0);
-            for (var i = 0, ilen = listeners.length; i < ilen; i++) {
-                var listener = listeners[i];
-                if (listener.hasOwnProperty('auxArg')) {
-                    remove(listener.element, listener.type, listener.listener, listener.auxArg);
+    evento.purgeEventListener = function(listener) {
+        if (listener._evento_bundles) {
+            var bundles = listener._evento_bundles.slice(0);
+            for (var i = 0, ilen = bundles.length; i < ilen; i++) {
+                var bundle = bundles[i];
+                if (bundle.hasOwnProperty('auxArg')) {
+                    remove(bundle.element, bundle.type, bundle.listener, bundle.auxArg);
                 }
                 else {
-                    remove(listener.element, listener.type, listener.listener);
+                    remove(bundle.element, bundle.type, bundle.listener);
                 }
             }
         }
