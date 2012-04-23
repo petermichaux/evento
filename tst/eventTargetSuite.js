@@ -42,7 +42,7 @@
     function APP_Twitter(name) {
         this.name = name;
     };
-    evento.mixinEventTarget(APP_Twitter.prototype);
+    evento.EventTarget.mixin(APP_Twitter.prototype);
     
     var tweetsRUs = new APP_Twitter('Tweets R Us');
     
@@ -119,12 +119,12 @@
             assert.same(evento.EventTarget, (new evento.EventTarget()).constructor, "an instance of evento.EventTarget should have evento.EventTarget as its constructor.");
         },
         
-        "test evento.mixinEventTarget does not change constructor": function() {
+        "test evento.EventTarget.mixin does not change constructor": function() {
             function F() {}
             var obj = new F();
             var constructorBefore = obj.constructor;
             assert.same(F, constructorBefore, "sanity check");
-            evento.mixinEventTarget(obj);
+            evento.EventTarget.mixin(obj);
             assert.same(constructorBefore, obj.constructor, "the constructor should not have changed");
         },
         
