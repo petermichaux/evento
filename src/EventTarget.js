@@ -299,6 +299,7 @@ o.dispatchEvent({type:'change'});
                 obj[p] = pt[p];
             }
         } 
+        evento.EventTarget.call(obj);
     };
 
 }());
