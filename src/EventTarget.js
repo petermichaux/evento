@@ -258,6 +258,31 @@ et.dispatchEvent({type:'change', extraData:'abc'});
 
 Mixes in the event target methods into any object.
 
+// Example 1
+
+app.Person = function(name) {
+    evento.EventTarget.call(this);
+    this.setName(name);
+};
+evento.EventTarget.mixin(app.Person.prototype);
+app.Person.prototype.setName = function(newName) {
+    var oldName = this.name;
+    this.name = newName;
+    this.dispatchEvent({
+        type: "change",
+        oldName: oldName,
+        newName: newName
+    });
+};
+
+var person = new app.Person('David');
+person.addEventListener('change', function(evt) {
+    alert('"' + evt.oldName + '" is now called "' + evt.newName + '".');
+});
+person.setName('Dave');
+
+// Example 2
+
 var o = {};
 evento.EventTarget.mixin(o);
 o.addEventListener('change', function(){alert('change');});
