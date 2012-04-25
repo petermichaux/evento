@@ -293,8 +293,10 @@ o.dispatchEvent({type:'change'});
         var pt = evento.EventTarget.prototype;
         for (var p in pt) {
             if (hasOwnProperty(pt, p) &&
-                // Don't want to copy evento.EventTarget.prototype._evento_listeners object. Want the obj object
-                // to have its own listeners and not share listeners with evento.EventTarget.prototype.
+                // Don't want to copy evento.EventTarget.prototype._evento_listeners object
+                // or the evento.EventTarget.prototype._evento_parents object. Want the obj object
+                // to have its own listeners and parents and not share listeners and parents
+                // with evento.EventTarget.prototype.
                 (typeof pt[p] === 'function')) {
                 obj[p] = pt[p];
             }
