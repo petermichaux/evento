@@ -3,3 +3,5 @@ A library for working with the observer pattern and events from DOM nodes (inclu
 The libraries for working with DOM and regular JavaScript event targets and listeners are ready for use. They are useful for the model and view layers of MVC applications.
 
 The libraries for working with DOM event objects will appear later.
+
+Evento has no dependencies.
