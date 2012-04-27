@@ -5,8 +5,12 @@ SRCS = src/header.js                 \
        src/EventTarget.js            \
        src/eventTargetSugar.js
 
-evento.js: $(LIBS) $(SRCS)
-	cat $(SRCS) > evento.js
+build: $(LIBS) $(SRCS)
+	mkdir -p build
+	cat $(SRCS) > build/evento.js
+	jsmin <build/evento.js >build/evento-tmp.js
+	cat src/header.js build/evento-tmp.js > build/evento-min.js
+	rm build/evento-tmp.js
 
 clean:
-	rm evento.js
+	rm -rf build
