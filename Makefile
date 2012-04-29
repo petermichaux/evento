@@ -7,9 +7,9 @@ SRCS = src/header.js                 \
 
 build: $(LIBS) $(SRCS)
 	mkdir -p build
-	cat $(SRCS) > build/evento.js
+	cat $(SRCS) >build/evento.js
 	jsmin <build/evento.js >build/evento-tmp.js
-	cat src/header.js build/evento-tmp.js > build/evento-min.js
+	cat src/header.js build/evento-tmp.js >build/evento-min.js
 	rm build/evento-tmp.js
 
 clean:
