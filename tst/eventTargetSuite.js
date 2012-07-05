@@ -354,6 +354,43 @@
 
             assert.same(false, result0);
             assert.same(true, result1);
+        },
+
+        "test all parents called even when one removes itself as a parent when handling the event": function() {
+            // a possible bug is that parent2 will not be called assuming the parents would
+            // be called in order of attachment to the child: parent0, parent1, parent2.
+
+            var child = new evento.EventTarget();
+            var parent0 = new evento.EventTarget();
+            var parent1 = new evento.EventTarget();
+            var parent2 = new evento.EventTarget();
+
+            var called0 = false;
+            var called1 = false;
+            var called2 = false;
+
+            parent0.addEventListener('foo', function() {
+                called0 = true;
+            });
+
+            parent1.addEventListener('foo', function() {
+                called1 = true;
+                child.removeParentEventTarget(parent1);
+            });
+
+            parent2.addEventListener('foo', function() {
+                called2 = true;
+            });
+
+            child.addParentEventTarget(parent0);
+            child.addParentEventTarget(parent1);
+            child.addParentEventTarget(parent2);
+
+            child.dispatchEvent({type: 'foo'});
+
+            assert.same(true, called0);
+            assert.same(true, called1);
+            assert.same(true, called2);
         }
 
     });
