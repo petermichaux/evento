@@ -1,1 +1,1 @@
-var evento = evento || {};
+var evento = {};
