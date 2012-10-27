@@ -7,6 +7,12 @@ The libraries for working with DOM event objects will appear later.
 Evento has no dependencies.
 
 
+Tests
+-----
+
+To run the automated tests, open tst/runner.html in a web browser.
+
+
 Author
 ------
 
