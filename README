@@ -5,3 +5,9 @@ The libraries for working with DOM and regular JavaScript event targets and list
 The libraries for working with DOM event objects will appear later.
 
 Evento has no dependencies.
+
+
+License
+-------
+
+Simplified BSD License. See the included LICENSE file for details.
