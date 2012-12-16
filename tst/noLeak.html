@@ -50,10 +50,10 @@
 
             var handler = createCleanHandler(i);
 
-            evento.addEventListener(el, 'click', handler);
+            evento.on(el, 'click', handler);
             // Browsers with circular reference memory leaks need the next line
             // to not leak memory.
-            //evento.removeEventListener(el, 'click', handler);
+            //evento.off(el, 'click', handler);
         }
 
     </script>
