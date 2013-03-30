@@ -137,8 +137,8 @@ et.addParentEventTarget(o);
 
 @description
 
-Removes parent added with addParentEventTarget. If the listener is
-not found there are no errors.
+Removes parent added with addParentEventTarget. If the parent is
+not found, there are no errors.
 
 var o = {handleEvent:function(){}};
 et.removeParentEventTarget(o);
@@ -200,7 +200,7 @@ et.dispatchEvent({type:'change', extraData:'abc'});
             // a not-yet-called listener. One listener removing 
             // a not-yet-called listener would result in skipping that
             // not-yet-called listner. The worst case scenario 
-            // is a listener adding itself again which would
+            // is a listener removing and adding itself again which would
             // create an infinite loop.
             //
             var listeners = this._evento_listeners[evt.type].slice(0);

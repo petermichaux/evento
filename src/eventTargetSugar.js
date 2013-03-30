@@ -14,13 +14,13 @@
 
 If the listener is an object then when a matching event type is dispatched on
 the event target, the listener object's handleEvent method will be called.
-By supplying a string value for auxArg you can specify the name of
+By supplying a string value for auxArg, you can specify the name of
 the method to be called. You can also supply a function object for auxArg for
 early binding.
 
 If the listener is a function then when a matching event type is dispatched on
 the event target, the listener function is called with event target object set as
-the "this" object. Using the auxArg you can specifiy a different object to be
+the "this" object. Using the auxArg, you can specifiy a different object to be
 the "this" object.
 
 One listener (or type/listener/auxArg pair to be more precise) can be added
@@ -93,7 +93,7 @@ MVC application this can lead to "zombie views" if the model data cannot be
 garbage collected. Event listeners need to be removed from event targets in browsers
 with circular reference memory leak problems (i.e. old versions of Internet Explorer.)
 
-The primary motivation for this purge function is to easy cleanup in MVC View destroy 
+The primary motivation for this purge function is to ease cleanup in MVC View destroy 
 methods. For example,
 
 var APP_BoxView = function(model, controller) {
