@@ -1,130 +1,124 @@
 /**
 
-@property evento.on
-
-@parameter element {EventTarget} The object you'd like to observe.
-
-@parameter type {string} The name of the event.
-
-@parameter listener {object|function} The listener object or callback function.
-
-@parameter auxArg {string|object} Optional. See description.
-
-@description
-
 If the listener is an object then when a matching event type is dispatched on
-the event target, the listener object's handleEvent method will be called.
-By supplying a string value for auxArg, you can specify the name of
-the method to be called. You can also supply a function object for auxArg for
+the event target, the listener object's `handleEvent` method will be called.
+By supplying a string value for `auxArg`, you can specify the name of
+the method to be called. You can also supply a function object for `auxArg` for
 early binding.
 
 If the listener is a function then when a matching event type is dispatched on
 the event target, the listener function is called with event target object set as
-the "this" object. Using the auxArg, you can specifiy a different object to be
-the "this" object.
+the `this` object. Using the `auxArg`, you can specifiy a different object to be
+the `this` object.
 
 One listener (or type/listener/auxArg pair to be more precise) can be added
 only once.
 
-var o = {
-    handleEvent: function(){},
-    handleClick: function(){}
-};
+    var o = {
+        handleEvent: function(){},
+        handleClick: function(){}
+    };
 
-// late binding. handleEvent is found when each event is dispatched
-evento.on(document.body, 'click', o);
+    // late binding. handleEvent is found when each event is dispatched
+    evento.on(document.body, 'click', o);
 
-// late binding. handleClick is found when each event is dispatched
-evento.on(document.body, 'click', o, 'handleClick');
+    // late binding. handleClick is found when each event is dispatched
+    evento.on(document.body, 'click', o, 'handleClick');
 
-// early binding. The supplied function is bound now
-evento.on(document.body, 'click', o, o.handleClick);
-evento.on(document.body, 'click', o, function(){});
+    // early binding. The supplied function is bound now
+    evento.on(document.body, 'click', o, o.handleClick);
+    evento.on(document.body, 'click', o, function(){});
 
-// supplied function will be called with document.body as this object
-evento.on(document.body, 'click', function(){});
+    // supplied function will be called with document.body as this object
+    evento.on(document.body, 'click', function(){});
 
-// The following form is supported but is not neccessary given the options
-// above and it is recommended you avoid it.
-evento.on(document.body, 'click', this.handleClick, this);
+    // The following form is supported but is not neccessary given the options
+    // above and it is recommended you avoid it.
+    evento.on(document.body, 'click', this.handleClick, this);
+
+@method evento.on
+
+@param {EventTarget} element The object you'd like to observe.
+
+@param {string} type The name of the event.
+
+@param {(Object|function)} listener The listener object or callback function.
+
+@param {(string|Object)} [auxArg] See description.
 
 */
 
 /**
-
-@property evento.off
-
-@parameter element {EventTarget} The object you'd like to stop observing.
-
-@parameter type {string} The name of the event.
-
-@parameter listener {object|function} The listener object or callback function.
-
-@parameter auxArg {string|object} Optional.
-
-@description
 
 Removes added listener matching the element/type/listener/auxArg combination exactly.
 If this combination is not found there are no errors.
 
-var o = {handleEvent:function(){}, handleClick:function(){}};
-evento.off(document.body, 'click', o);
-evento.off(document.body, 'click', o, 'handleClick');
-evento.off(document.body, 'click', o, fn);
-evento.off(document.body, 'click', fn);
-evento.off(document.body, 'click', this.handleClick, this);
+    var o = {handleEvent:function(){}, handleClick:function(){}};
+    evento.off(document.body, 'click', o);
+    evento.off(document.body, 'click', o, 'handleClick');
+    evento.off(document.body, 'click', o, fn);
+    evento.off(document.body, 'click', fn);
+    evento.off(document.body, 'click', this.handleClick, this);
+
+@method evento.off
+
+@param {EventTarget} element The object you'd like to stop observing.
+
+@param {string} type The name of the event.
+
+@param {(Object|function)} listener The listener object or callback function.
+
+@param {(string|Object)} [auxArg] See description.
 
 */
 
 /**
 
-@property evento.purge
-
-@parameter listener {EventListener} The listener object that should stop listening.
-
-@description
-
-Removes all registrations of the listener added through evento.on.
+Removes all registrations of the listener added through `evento.on`.
 This purging should be done before your application code looses its last reference
-to listener. (This can also be done with more work using evento.off for
+to listener. (This can also be done with more work using `evento.off` for
 each registeration.) If the listeners are not removed or purged, the listener
-will continue to observe the EventTarget and cannot be garbage collected. In an
+will continue to observe the `EventTarget` and cannot be garbage collected. In an
 MVC application this can lead to "zombie views" if the model data cannot be
 garbage collected. Event listeners need to be removed from event targets in browsers
 with circular reference memory leak problems (i.e. old versions of Internet Explorer.)
 
-The primary motivation for this purge function is to ease cleanup in MVC View destroy 
+The primary motivation for this `purge` function is to ease cleanup in MVC View destroy 
 methods. For example,
 
-var APP_BoxView = function(model, controller) {
-    this.model = model || new APP_BoxModel();
-    this.controller = controller || new APP_BoxController();
-    this.rootEl = document.createElement('div');
+    var APP_BoxView = function(model, controller) {
+        this.model = model || new APP_BoxModel();
+        this.controller = controller || new APP_BoxController();
+        this.rootEl = document.createElement('div');
 
-    // subscribe to DOM node(s) and model object(s) or anything else
-    // implementing the EventTarget interface using listener objects
-    // and specifying method name using the same subscription interface.
-    //
-    evento.on(this.rootEl, 'click', this, 'handleClick');
-    evento.on(this.model, 'change', this, 'handleModelChange');
-};
+        // subscribe to DOM node(s) and model object(s) or anything else
+        // implementing the EventTarget interface using listener objects
+        // and specifying method name using the same subscription interface.
+        //
+        evento.on(this.rootEl, 'click', this, 'handleClick');
+        evento.on(this.model, 'change', this, 'handleModelChange');
+    };
 
-APP_BoxView.prototype.handleClick = function() {
-    // might subscribe/unsubscribe to more DOM nodes or models here
-};
+    APP_BoxView.prototype.handleClick = function() {
+        // might subscribe/unsubscribe to more DOM nodes or models here
+    };
 
-APP_BoxView.prototype.handleModelChange = function() {
-    // might subscribe/unsubscribe to more DOM nodes or models here
-};
+    APP_BoxView.prototype.handleModelChange = function() {
+        // might subscribe/unsubscribe to more DOM nodes or models here
+    };
 
-APP_BoxView.prototype.destroy = function() {
+    APP_BoxView.prototype.destroy = function() {
 
-    // Programmer doesn't need to remember anything. Purge all subscriptions
-    // to DOM nodes, model objects, or anything else implementing
-    // the EventTarget interface in one fell swoop.
-    //
-    evento.purge(this);
-};
+        // Programmer doesn't need to remember anything. Purge all subscriptions
+        // to DOM nodes, model objects, or anything else implementing
+        // the EventTarget interface in one fell swoop.
+        //
+        evento.purge(this);
+    };
+
+@method evento.purge
+
+@param {EventListener} listener The listener object that should stop listening.
 
 */
 

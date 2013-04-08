@@ -1,14 +1,12 @@
 /**
 
-@property evento.EventTarget
-
-@description
-
 A constructor function for creating event target objects.
 
-var et = new evento.EventTarget();
+    var et = new evento.EventTarget();
 
 The methods of an event target object are inspired by the DOM2 standard.
+
+@constructor
 
 */
 evento.EventTarget = function() {};
@@ -29,25 +27,21 @@ evento.EventTarget = function() {};
 
 /**
 
-@property evento.EventTarget.prototype.addEventListener
-
-@parameter type {string} The name of the event.
-
-@parameter listener {object|function} The listener object or callback function.
-
-@description
-
 If the listener is an object then when a matching event type is dispatched on
-the event target, the listener object's handleEvent method will be called.
+the event target, the listener object's `handleEvent` method will be called.
 
 If the listener is a function then when a matching event type is dispatched on
 the event target, the listener function is called with event target object set as
-the "this" object.
+the `this` object.
 
 One listener (or type/listener pair to be more precise) can be added only once.
 
-et.addEventListener('change', {handleEvent:function(){}});
-et.addEventListener('change', function(){});
+    et.addEventListener('change', {handleEvent:function(){}});
+    et.addEventListener('change', function(){});
+
+@param {string} type The name of the event.
+
+@param {(Object|function)} listener The listener object or callback function.
 
 */
     evento.EventTarget.prototype.addEventListener = function(type, listener) {
@@ -65,20 +59,16 @@ et.addEventListener('change', function(){});
 
 /**
 
-@property evento.EventTarget.prototype.removeEventListener
-
-@parameter type {string} The name of the event.
-
-@parameter listener {object|function} The listener object or callback function.
-
-@description
-
 Removes added listener matching the type/listener combination exactly.
 If this combination is not found there are no errors.
 
-var o = {handleEvent:function(){}};
-et.removeEventListener('change', o);
-et.removeEventListener('change', fn);
+    var o = {handleEvent:function(){}};
+    et.removeEventListener('change', o);
+    et.removeEventListener('change', fn);
+
+@param {string} type The name of the event.
+
+@param {(Object|function)} listener The listener object or callback function.
 
 */
     evento.EventTarget.prototype.removeEventListener = function(type, listener) {
@@ -98,20 +88,16 @@ et.removeEventListener('change', fn);
 
 /**
 
-@property evento.EventTarget.prototype.addParentEventTarget
-
-@parameter parent {EventTarget} A parent to call when bubbling an event.
-
-@description
-
 When an event is dispatched on an event target, if that event target has parents
 then the event is also dispatched on the parents as long as bubbling has not
 been canceled on the event.
 
 One parent can be added only once.
 
-var o = new evento.EventTarget();
-et.addParentEventTarget(o);
+    var o = new evento.EventTarget();
+    et.addParentEventTarget(o);
+
+@param {EventTarget} parent A parent to call when bubbling an event.
 
 */
     evento.EventTarget.prototype.addParentEventTarget = function(parent) {
@@ -131,17 +117,13 @@ et.addParentEventTarget(o);
 
 /**
 
-@property evento.EventTarget.prototype.removeParentEventTarget
-
-@parameter parent {EventTarget} The parent to remove.
-
-@description
-
 Removes parent added with addParentEventTarget. If the parent is
 not found, there are no errors.
 
-var o = {handleEvent:function(){}};
-et.removeParentEventTarget(o);
+    var o = {handleEvent:function(){}};
+    et.removeParentEventTarget(o);
+
+@param {EventTarget} parent The parent to remove.
 
 */
     evento.EventTarget.prototype.removeParentEventTarget = function(parent) {
@@ -159,23 +141,19 @@ et.removeParentEventTarget(o);
 
 /**
 
-@property evento.EventTarget.prototype.dispatchEvent
+The `event.type` property is required. All listeners registered for this
+event type are called with `event` passed as an argument to the listeners.
 
-@parameter evt {object} The event object to dispatch to all listeners.
+If not set, the `event.target` property will be set to be this event target.
 
-@description
+The `evt.currentTarget` will be set to be this event target.
 
-The evt.type property is required. All listeners registered for this
-event type are called with evt passed as an argument to the listeners.
+Call `evt.stopPropagation()` to stop bubbling to parents.
 
-If not set, the evt.target property will be set to be the event target.
+    et.dispatchEvent({type:'change'});
+    et.dispatchEvent({type:'change', extraData:'abc'});
 
-The evt.currentTarget will be set to be the event target.
-
-Call evt.stopPropagation() to stop bubbling to parents.
-
-et.dispatchEvent({type:'change'});
-et.dispatchEvent({type:'change', extraData:'abc'});
+@param {Object} event The event object to dispatch to all listeners.
 
 */
     evento.EventTarget.prototype.dispatchEvent = function(evt) {
@@ -228,43 +206,39 @@ et.dispatchEvent({type:'change', extraData:'abc'});
 
 /**
 
-@property evento.EventTarget.mixin
-
-@parameter obj {object} The object to be made into an event target.
-
-@description
-
 Mixes in the event target methods into any object.
 
-// Example 1
+Example 1
 
-app.Person = function(name) {
-    evento.EventTarget.call(this);
-    this.setName(name);
-};
-evento.EventTarget.mixin(app.Person.prototype);
-app.Person.prototype.setName = function(newName) {
-    var oldName = this.name;
-    this.name = newName;
-    this.dispatchEvent({
-        type: "change",
-        oldName: oldName,
-        newName: newName
+    app.Person = function(name) {
+        evento.EventTarget.call(this);
+        this.setName(name);
+    };
+    evento.EventTarget.mixin(app.Person.prototype);
+    app.Person.prototype.setName = function(newName) {
+        var oldName = this.name;
+        this.name = newName;
+        this.dispatchEvent({
+            type: "change",
+            oldName: oldName,
+            newName: newName
+        });
+    };
+
+    var person = new app.Person('David');
+    person.addEventListener('change', function(evt) {
+        alert('"' + evt.oldName + '" is now called "' + evt.newName + '".');
     });
-};
+    person.setName('Dave');
 
-var person = new app.Person('David');
-person.addEventListener('change', function(evt) {
-    alert('"' + evt.oldName + '" is now called "' + evt.newName + '".');
-});
-person.setName('Dave');
+Example 2
 
-// Example 2
+    var o = {};
+    evento.EventTarget.mixin(o);
+    o.addEventListener('change', function(){alert('change');});
+    o.dispatchEvent({type:'change'});
 
-var o = {};
-evento.EventTarget.mixin(o);
-o.addEventListener('change', function(){alert('change');});
-o.dispatchEvent({type:'change'});
+@param {Object} obj The object to be made into an event target.
 
 */
     evento.EventTarget.mixin = function(obj) {
