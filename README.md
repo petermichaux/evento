@@ -3,15 +3,17 @@ Evento
 
 A library for working with the observer pattern and events from DOM nodes (including IE and DOM2 standard) and regular JavaScript objects. Useful for all kinds of JavaScript programs with special attention to enhance use in MVC-style applications.
 
-The libraries for working with DOM and regular JavaScript event targets and listeners are ready for use. They are useful for the model and view layers of MVC applications.
 
-The libraries for working with DOM event objects will appear later.
+Downloads
+---------
+
+See http://peter.michaux.ca/downloads/evento/
 
 
 Status
 ------
 
-Under construction but useful.
+Stable.
 
 
 Browser Support
