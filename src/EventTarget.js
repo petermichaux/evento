@@ -21,7 +21,9 @@ evento.EventTarget = function() {};
         function F() {}
         return function(o) {
             F.prototype = o;
-            return new F();
+            o = new F();
+            F.prototype = null;
+            return o;
         };
     }());
 
