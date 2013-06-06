@@ -391,6 +391,10 @@
             assert.same(true, called0);
             assert.same(true, called1);
             assert.same(true, called2);
+        },
+
+        "test EventTarget has superConstructor Object": function() {
+            assert.same(Object, evento.EventTarget.superConstructor);
         }
 
     });
