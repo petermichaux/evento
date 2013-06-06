@@ -10,6 +10,12 @@ The methods of an event target object are inspired by the DOM2 standard.
 
 */
 evento.EventTarget = function() {};
+
+/**
+
+@property evento.EventTarget.superConstructor
+
+*/
 evento.EventTarget.superConstructor = Object;
 
 (function() {
